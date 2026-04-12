@@ -19,6 +19,8 @@ class User extends Authenticatable
         'avatar_url',
         'telegram_id',
         'role',
+        'banned_at',
+        'ban_reason',
     ];
 
     protected $hidden = [
@@ -30,8 +32,14 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'banned_at'         => 'datetime',
+            'password'          => 'hashed',
         ];
+    }
+
+    public function isBanned(): bool
+    {
+        return $this->banned_at !== null;
     }
 
     public function getAvatarAttribute(): string

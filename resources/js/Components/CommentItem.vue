@@ -17,9 +17,27 @@
         <button v-if="canComment" class="btn btn-ghost btn-xs" @click="toggleReply">
           {{ showReply ? 'Отмена' : 'Ответить' }}
         </button>
+        <button v-if="canComment && !canDelete" class="btn btn-ghost btn-xs" @click="toggleReport">
+          Пожаловаться
+        </button>
         <form v-if="canDelete" @submit.prevent="del">
           <button type="submit" class="btn btn-danger-ghost btn-xs">Удалить</button>
         </form>
+      </div>
+
+      <!-- Report form -->
+      <div v-if="showReport" class="reply-compose">
+        <input
+          v-model="reportReason"
+          type="text"
+          class="reply-compose__input"
+          placeholder="Причина жалобы…"
+          style="height:auto;padding:8px;"
+        />
+        <div class="reply-compose__footer">
+          <button class="btn btn-outline btn-sm" @click="showReport = false">Отмена</button>
+          <button class="btn btn-danger btn-sm" :disabled="!reportReason.trim()" @click="sendReport">Отправить жалобу</button>
+        </div>
       </div>
 
       <!-- Reply compose -->
@@ -72,9 +90,11 @@ const props = defineProps({
 })
 
 const page = usePage()
-const showReply = ref(false)
-const replyText = ref('')
-const replyRef = ref(null)
+const showReply   = ref(false)
+const replyText   = ref('')
+const replyRef    = ref(null)
+const showReport  = ref(false)
+const reportReason = ref('')
 
 const canComment = computed(() => !!page.props.auth?.user)
 
@@ -86,6 +106,15 @@ const canDelete = computed(() => {
 function canDeleteComment(c) {
   const u = page.props.auth?.user
   return u && (u.id === c.user_id || ['moderator','admin'].includes(u.role))
+}
+
+function toggleReport() { showReport.value = !showReport.value; reportReason.value = '' }
+
+function sendReport() {
+  router.post(`/report/comment/${props.comment.id}`, { reason: reportReason.value }, {
+    preserveScroll: true,
+    onSuccess: () => { showReport.value = false; reportReason.value = '' },
+  })
 }
 
 async function toggleReply() {
