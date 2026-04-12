@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 EMAIL=$1
-DOMAIN=nocto.online
+DOMAIN=noctocode.online
 
 if [ -z "$EMAIL" ]; then
   echo "Использование: bash ssl.sh your@email.com"
@@ -16,7 +16,7 @@ docker compose exec certbot certbot certonly --webroot \
 cat > docker/nginx-ssl.conf << 'EOF'
 server {
     listen 80;
-    server_name nocto.online www.nocto.online;
+    server_name noctocode.online www.noctocode.online;
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
@@ -27,12 +27,12 @@ server {
 
 server {
     listen 443 ssl http2;
-    server_name nocto.online www.nocto.online;
+    server_name noctocode.online www.noctocode.online;
     root /var/www/public;
     index index.php;
 
-    ssl_certificate /etc/letsencrypt/live/nocto.online/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/nocto.online/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/noctocode.online/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/noctocode.online/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
