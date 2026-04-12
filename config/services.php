@@ -27,6 +27,8 @@ return [
         'client_id'     => env('TELEGRAM_BOT_TOKEN'),
         'client_secret' => env('TELEGRAM_BOT_TOKEN'),
         'redirect'      => env('TELEGRAM_REDIRECT_URI'),
+        'bot_token'     => env('TELEGRAM_BOT_TOKEN'),
+        'channel'       => env('TELEGRAM_CHANNEL', '@noctoproxy'),
     ],
 
 ];

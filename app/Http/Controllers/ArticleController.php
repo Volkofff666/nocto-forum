@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -43,11 +44,14 @@ class ArticleController extends Controller
             ? auth()->user()->bookmarks()->pluck('article_id')->toArray()
             : [];
 
+        $tgSubscribers = app(TelegramService::class)->getSubscriberCount();
+
         return Inertia::render('Articles/Index', [
             'articles'       => $articles,
             'filters'        => ['category' => $category, 'sort' => $sort, 'tag' => $tag],
             'categoryCounts' => $categoryCounts,
             'bookmarkedIds'  => $bookmarkedIds,
+            'tgSubscribers'  => $tgSubscribers,
         ]);
     }
 

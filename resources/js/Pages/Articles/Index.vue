@@ -72,10 +72,11 @@
         </div>
 
         <div class="sidebar-card tg-widget">
-          <div class="tg-widget__count">9 047</div>
+          <div class="tg-widget__count">{{ fmtCount(tgSubscribers) }}</div>
           <div class="tg-widget__label">подписчиков в Telegram</div>
-          <a href="https://t.me/noctohub" target="_blank" rel="noopener" class="btn btn-tg" style="width:100%;justify-content:center;">
-            Подписаться на канал
+          <a href="https://t.me/noctoproxy" target="_blank" rel="noopener" class="btn btn-tg" style="width:100%;justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.393c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.607l-2.95-.924c-.641-.202-.654-.641.136-.951l11.52-4.442c.534-.194 1.001.13.376.958z"/></svg>
+            Подписаться
           </a>
         </div>
 
@@ -103,8 +104,15 @@ const props = defineProps({
   articles:      Object,
   filters:       Object,
   categoryCounts:Object,
-  bookmarkedIds: { type: Array, default: () => [] },
+  bookmarkedIds: { type: Array,   default: () => [] },
+  tgSubscribers: { type: Number,  default: 0 },
 })
+
+function fmtCount(n) {
+  if (!n) return '—'
+  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + ' K'
+  return n.toString()
+}
 
 const sort     = ref(props.filters?.sort || 'latest')
 const category = ref(props.filters?.category || null)
