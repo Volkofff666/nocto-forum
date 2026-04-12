@@ -11,7 +11,7 @@
         "laravel/framework": "^11.31",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.10.1",
-        "socialiteproviders/telegram": "^4.2"
+        "socialiteproviders/telegram": "^4.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
