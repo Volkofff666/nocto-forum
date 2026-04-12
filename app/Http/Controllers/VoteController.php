@@ -36,6 +36,6 @@ class VoteController extends Controller
 
         $article->update(['votes_count' => $votesCount]);
 
-        return back();
+        return back()->with('success', 'Голос учтён');
     }
 }

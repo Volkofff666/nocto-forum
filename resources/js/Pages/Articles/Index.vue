@@ -47,7 +47,7 @@
       </div>
 
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar sidebar-sticky">
         <!-- Write CTA -->
         <div v-if="$page.props.auth?.user" class="sidebar-card write-cta">
           <p>Поделитесь опытом с сообществом</p>

@@ -10,6 +10,8 @@
       </div>
       <span class="article-card__sep">·</span>
       <span class="article-card__time">{{ timeAgo(article.created_at) }}</span>
+      <span class="article-card__sep">·</span>
+      <span class="article-card__time">{{ readTime(article.body) }} мин.</span>
       <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
     </div>
 
@@ -47,6 +49,10 @@ defineProps({ article: Object })
 
 const cats = { proxy: 'Прокси', vpn: 'VPN', security: 'Безопасность', tools: 'Инструменты', other: 'Другое' }
 function catLabel(c) { return cats[c] || c }
+
+function readTime(body) {
+  return Math.max(1, Math.ceil(body.trim().split(/\s+/).length / 200))
+}
 
 function timeAgo(d) {
   const s = Math.floor((Date.now() - new Date(d)) / 1000)

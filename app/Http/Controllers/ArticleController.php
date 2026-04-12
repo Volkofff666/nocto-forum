@@ -82,7 +82,11 @@ class ArticleController extends Controller
             ])
             ->firstOrFail();
 
-        $article->increment('views_count');
+        $sessionKey = 'viewed.' . $article->id;
+        if (!session()->has($sessionKey)) {
+            $article->increment('views_count');
+            session()->put($sessionKey, true);
+        }
 
         $related = Article::published()
             ->where('category', $article->category)
@@ -149,6 +153,19 @@ class ArticleController extends Controller
         $this->clearArticleCache();
 
         return redirect()->route('articles.show', $article->slug);
+    }
+
+    public function drafts(Request $request): Response
+    {
+        $drafts = $request->user()
+            ->articles()
+            ->where('status', 'draft')
+            ->latest()
+            ->paginate(15);
+
+        return Inertia::render('Articles/Drafts', [
+            'drafts' => $drafts,
+        ]);
     }
 
     private function clearArticleCache(): void

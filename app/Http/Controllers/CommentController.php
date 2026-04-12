@@ -21,7 +21,7 @@ class CommentController extends Controller
             'body'      => $validated['body'],
         ]);
 
-        return back();
+        return back()->with('success', 'Комментарий добавлен');
     }
 
     public function destroy(Comment $comment)
@@ -30,6 +30,6 @@ class CommentController extends Controller
 
         $comment->delete();
 
-        return back();
+        return back()->with('success', 'Комментарий удалён');
     }
 }

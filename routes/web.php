@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SocialiteController;
@@ -25,6 +26,13 @@ Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->mid
 
 // Голоса
 Route::post('/articles/{article}/vote', [VoteController::class, 'store'])->middleware('auth')->name('votes.store');
+
+// Настройки профиля
+Route::get('/settings', [SettingsController::class, 'edit'])->middleware('auth')->name('settings.edit');
+Route::patch('/settings', [SettingsController::class, 'update'])->middleware('auth')->name('settings.update');
+
+// Мои черновики
+Route::get('/my/drafts', [ArticleController::class, 'drafts'])->middleware('auth')->name('articles.drafts');
 
 // Профиль
 Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');

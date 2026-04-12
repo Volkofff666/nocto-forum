@@ -27,7 +27,7 @@
               <div class="article-byline__author">
                 <Link :href="`/profile/${article.user.username}`">{{ article.user.name }}</Link>
               </div>
-              <div class="article-byline__meta">{{ formatDate(article.created_at) }}</div>
+              <div class="article-byline__meta">{{ formatDate(article.created_at) }} · {{ readTime }} мин. чтения</div>
             </div>
             <div v-if="canEdit" class="article-byline__actions">
               <Link :href="`/articles/${article.id}/edit`" class="btn btn-outline btn-sm">Редактировать</Link>
@@ -42,6 +42,9 @@
 
           <!-- Vote bar -->
           <VoteBar :article="article" :userVote="userVote" />
+
+          <!-- Share -->
+          <ShareBar :title="article.title" :url="pageUrl" />
 
           <!-- Related -->
           <div v-if="related.length" class="related">
@@ -111,7 +114,7 @@
       </div>
 
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar sidebar-sticky">
         <div v-if="$page.props.auth?.user" class="sidebar-card write-cta">
           <p>Есть что рассказать сообществу?</p>
           <Link href="/articles/create" class="btn btn-primary" style="width:100%;">Написать статью</Link>
@@ -151,6 +154,7 @@ import { ref, computed } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import VoteBar from '@/Components/VoteBar.vue'
+import ShareBar from '@/Components/ShareBar.vue'
 import CommentItem from '@/Components/CommentItem.vue'
 
 const props = defineProps({
@@ -161,11 +165,16 @@ const props = defineProps({
 
 const page = usePage()
 const commentText = ref('')
+const pageUrl = computed(() => window.location.href)
 
 const canEdit = computed(() => {
   const u = page.props.auth?.user
   return u && (u.id === props.article.user_id || u.role === 'admin')
 })
+
+const readTime = computed(() =>
+  Math.max(1, Math.ceil(props.article.body.trim().split(/\s+/).length / 200))
+)
 
 const paragraphs = computed(() =>
   props.article.body.split('\n').filter(p => p.trim())
