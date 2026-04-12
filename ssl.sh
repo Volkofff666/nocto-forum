@@ -8,12 +8,12 @@ if [ -z "$EMAIL" ]; then
   exit 1
 fi
 
-docker compose exec certbot certbot certonly --webroot \
+docker compose run --rm certbot certbot certonly --webroot \
   -w /var/www/certbot -d $DOMAIN -d www.$DOMAIN \
   --email $EMAIL --agree-tos --non-interactive
 
 # Обновляем nginx конфиг для HTTPS
-cat > docker/nginx-ssl.conf << 'EOF'
+cat > docker/nginx.conf << 'EOF'
 server {
     listen 80;
     server_name noctocode.online www.noctocode.online;
@@ -43,9 +43,10 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass app:9000;
+        fastcgi_pass 127.0.0.1:9000;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_hide_header X-Powered-By;
     }
 
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?)$ {
@@ -53,10 +54,13 @@ server {
         add_header Cache-Control "public, immutable";
         access_log off;
     }
+
+    location ~ /\.ht {
+        deny all;
+    }
 }
 EOF
 
-cp docker/nginx-ssl.conf docker/nginx.conf
-docker compose exec nginx nginx -s reload
+docker compose exec app nginx -s reload
 
-echo "=== SSL настроен ==="
+echo "=== SSL настроен для $DOMAIN ==="
