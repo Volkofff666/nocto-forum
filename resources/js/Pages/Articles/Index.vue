@@ -1,104 +1,84 @@
 <template>
   <AppLayout>
-    <div class="page-layout">
-      <!-- Основной контент -->
+    <div class="page-wrap">
+      <!-- Feed -->
       <div>
-        <!-- Табы -->
-        <div class="tabs">
-          <button
-            class="tab"
-            :class="{ 'tab--active': currentSort === 'latest' }"
-            @click="setSort('latest')"
-          >Новое</button>
-          <button
-            class="tab"
-            :class="{ 'tab--active': currentSort === 'popular' }"
-            @click="setSort('popular')"
-          >Популярное</button>
-          <button
-            class="tab"
-            :class="{ 'tab--active': currentSort === 'discussed' }"
-            @click="setSort('discussed')"
-          >Обсуждения</button>
-        </div>
+        <div class="content-card">
+          <!-- Tab bar -->
+          <div class="tab-bar">
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }" @click="setSort('latest')">Новое</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }" @click="setSort('popular')">Популярное</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'discussed' }" @click="setSort('discussed')">Обсуждаемое</button>
+          </div>
 
-        <!-- Фильтр по категориям -->
-        <div class="filter-pills">
-          <button
-            class="filter-pill"
-            :class="{ 'filter-pill--active': !currentCategory }"
-            @click="setCategory(null)"
-          >Все</button>
-          <button
-            v-for="cat in categories"
-            :key="cat.value"
-            class="filter-pill"
-            :class="{ 'filter-pill--active': currentCategory === cat.value }"
-            @click="setCategory(cat.value)"
-          >{{ cat.label }}</button>
-        </div>
+          <!-- Category pills -->
+          <div class="cat-pills">
+            <button class="cat-pill" :class="{ 'cat-pill--active': !category }" @click="setCategory(null)">Все</button>
+            <button
+              v-for="c in categories" :key="c.value"
+              class="cat-pill"
+              :class="{ 'cat-pill--active': category === c.value }"
+              @click="setCategory(c.value)"
+            >{{ c.label }}</button>
+          </div>
 
-        <!-- Список статей -->
-        <div v-if="articles.data.length > 0">
-          <ArticleCard
-            v-for="article in articles.data"
-            :key="article.id"
-            :article="article"
-          />
-        </div>
-        <div v-else class="empty-state">
-          <div class="empty-state__title">Статей пока нет</div>
-          <div class="empty-state__text">Будьте первым — напишите что-нибудь интересное</div>
-        </div>
+          <!-- Articles -->
+          <div v-if="articles.data.length">
+            <ArticleCard v-for="a in articles.data" :key="a.id" :article="a" />
+          </div>
+          <div v-else class="empty">
+            <div class="empty__icon">📭</div>
+            <div class="empty__title">Статей пока нет</div>
+            <div class="empty__text">Станьте первым — напишите что-нибудь интересное</div>
+          </div>
 
-        <!-- Пагинация -->
-        <div v-if="articles.last_page > 1" class="pagination">
-          <button
-            v-for="link in articles.links"
-            :key="link.label"
-            class="pagination__item"
-            :class="{
-              'pagination__item--active': link.active,
-              'pagination__item--disabled': !link.url
-            }"
-            :disabled="!link.url"
-            @click="link.url && goToPage(link.url)"
-            v-html="link.label"
-          />
+          <!-- Pagination -->
+          <div v-if="articles.last_page > 1" class="pagination">
+            <button
+              v-for="link in articles.links" :key="link.label"
+              class="page-btn"
+              :class="{ 'page-btn--active': link.active }"
+              :disabled="!link.url"
+              @click="link.url && router.get(link.url)"
+              v-html="link.label"
+            />
+          </div>
         </div>
       </div>
 
-      <!-- Сайдбар -->
+      <!-- Sidebar -->
       <aside class="sidebar">
-        <!-- Telegram блок -->
-        <div class="sidebar-block tg-block">
-          <div class="tg-block__subs">9 047</div>
-          <div class="tg-block__label">подписчиков в Telegram</div>
-          <a href="https://t.me/noctohub" target="_blank" rel="noopener" class="btn-tg" style="width:100%;justify-content:center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.393c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.607l-2.95-.924c-.641-.202-.654-.641.136-.951l11.52-4.442c.534-.194 1.001.13.376.958z"/>
-            </svg>
-            Подписаться
+        <!-- Write CTA -->
+        <div v-if="$page.props.auth?.user" class="sidebar-card write-cta">
+          <p>Поделитесь опытом с сообществом</p>
+          <Link href="/articles/create" class="btn btn-primary" style="width:100%;">Написать статью</Link>
+        </div>
+        <div v-else class="sidebar-card write-cta">
+          <p>Войдите, чтобы публиковать статьи и участвовать в обсуждениях</p>
+          <a href="/auth/telegram" class="btn btn-tg" style="width:100%;justify-content:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-2.04 9.607c-.148.658-.537.818-1.084.508l-3-2.21-1.447 1.393c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.48 14.607l-2.95-.924c-.641-.202-.654-.641.136-.951l11.52-4.442c.534-.194 1.001.13.376.958z"/></svg>
+            Войти через Telegram
           </a>
         </div>
 
-        <!-- CTA написать -->
-        <div class="sidebar-block" style="text-align:center;" v-if="$page.props.auth?.user">
-          <p style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">Поделитесь опытом с сообществом</p>
-          <Link href="/articles/create" class="btn-primary" style="width:100%;justify-content:center;">Написать статью</Link>
+        <!-- Telegram channel -->
+        <div class="sidebar-card tg-widget">
+          <div class="tg-widget__count">9 047</div>
+          <div class="tg-widget__label">подписчиков в Telegram</div>
+          <a href="https://t.me/noctohub" target="_blank" rel="noopener" class="btn btn-tg" style="width:100%;justify-content:center;">
+            Подписаться на канал
+          </a>
         </div>
 
-        <!-- Категории -->
-        <div class="sidebar-block">
-          <div class="sidebar-block__title">Категории</div>
-          <ul class="category-list">
-            <li v-for="cat in categories" :key="cat.value">
-              <a :href="`/?category=${cat.value}`">
-                <span>{{ cat.label }}</span>
-                <span class="category-list__count">{{ categoryCounts[cat.value] || 0 }}</span>
-              </a>
-            </li>
-          </ul>
+        <!-- Categories -->
+        <div class="sidebar-card">
+          <div class="sidebar-card__title">Категории</div>
+          <div class="cat-list">
+            <a v-for="c in categories" :key="c.value" :href="`/?category=${c.value}`" class="cat-list__item">
+              <span>{{ c.label }}</span>
+              <span class="cat-list__count">{{ categoryCounts[c.value] || 0 }}</span>
+            </a>
+          </div>
         </div>
       </aside>
     </div>
@@ -117,8 +97,8 @@ const props = defineProps({
   categoryCounts: Object,
 })
 
-const currentSort = ref(props.filters?.sort || 'latest')
-const currentCategory = ref(props.filters?.category || null)
+const sort = ref(props.filters?.sort || 'latest')
+const category = ref(props.filters?.category || null)
 
 const categories = [
   { value: 'proxy',    label: 'Прокси' },
@@ -128,23 +108,12 @@ const categories = [
   { value: 'other',    label: 'Другое' },
 ]
 
-function setSort(sort) {
-  currentSort.value = sort
-  reload()
-}
-
-function setCategory(category) {
-  currentCategory.value = category
-  reload()
-}
+function setSort(s) { sort.value = s; reload() }
+function setCategory(c) { category.value = c; reload() }
 
 function reload() {
-  const params = { sort: currentSort.value }
-  if (currentCategory.value) params.category = currentCategory.value
+  const params = { sort: sort.value }
+  if (category.value) params.category = category.value
   router.get('/', params, { preserveState: true, replace: true })
-}
-
-function goToPage(url) {
-  router.get(url)
 }
 </script>

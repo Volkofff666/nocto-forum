@@ -1,62 +1,55 @@
 <template>
   <AppLayout>
-    <div class="page-layout page-layout--full" style="max-width:760px;margin:0 auto;">
-      <div style="padding:32px 0;">
-        <h1 style="font-size:22px;font-weight:700;margin-bottom:24px;">Редактировать статью</h1>
+    <div class="page-wrap page-wrap--full" style="padding-top:20px;">
+      <div class="content-card write-page">
+        <div class="write-page__header">
+          <span class="write-page__title">Редактировать статью</span>
+          <Link :href="`/articles/${article.slug}`" class="btn btn-ghost btn-sm">✕ Отмена</Link>
+        </div>
 
         <form @submit.prevent="submit">
-          <!-- Заголовок -->
           <input
             v-model="form.title"
             type="text"
             class="article-title-input"
-            placeholder="Заголовок статьи..."
             maxlength="255"
           />
           <div v-if="errors.title" class="form-error" style="margin-bottom:12px;">{{ errors.title }}</div>
 
-          <!-- Категория -->
-          <div class="form-group">
-            <label class="form-label">Категория</label>
-            <select v-model="form.category" class="form-select">
-              <option value="proxy">Прокси</option>
-              <option value="vpn">VPN</option>
-              <option value="security">Безопасность</option>
-              <option value="tools">Инструменты</option>
-              <option value="other">Другое</option>
-            </select>
-            <div v-if="errors.category" class="form-error">{{ errors.category }}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+            <div>
+              <label class="form-label">Категория</label>
+              <select v-model="form.category" class="form-select">
+                <option value="proxy">Прокси</option>
+                <option value="vpn">VPN</option>
+                <option value="security">Безопасность</option>
+                <option value="tools">Инструменты</option>
+                <option value="other">Другое</option>
+              </select>
+            </div>
           </div>
 
-          <!-- Краткое описание -->
           <div class="form-group">
             <label class="form-label">Краткое описание</label>
-            <textarea
-              v-model="form.excerpt"
-              class="form-textarea"
-              rows="2"
-              maxlength="500"
-            ></textarea>
+            <textarea v-model="form.excerpt" class="form-textarea" rows="2" maxlength="500"></textarea>
             <div v-if="errors.excerpt" class="form-error">{{ errors.excerpt }}</div>
           </div>
 
-          <!-- Тело -->
           <div class="form-group">
             <label class="form-label">Текст статьи</label>
             <textarea
               v-model="form.body"
-              ref="bodyRef"
+              ref="bodyEl"
               class="form-textarea"
-              rows="16"
-              @input="autoResize"
+              rows="18"
+              @input="resize"
             ></textarea>
             <div v-if="errors.body" class="form-error">{{ errors.body }}</div>
           </div>
 
-          <!-- Кнопки -->
           <div class="form-actions">
-            <Link :href="`/articles/${article.slug}`" class="btn-outline">Отмена</Link>
-            <button type="submit" class="btn-primary">Сохранить</button>
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            <Link :href="`/articles/${article.slug}`" class="btn btn-outline">Отмена</Link>
           </div>
         </form>
       </div>
@@ -81,17 +74,11 @@ const form = ref({
   category: props.article.category,
 })
 
-const bodyRef = ref(null)
-
-function autoResize() {
-  const el = bodyRef.value
-  if (el) {
-    el.style.height = 'auto'
-    el.style.height = el.scrollHeight + 'px'
-  }
+const bodyEl = ref(null)
+function resize() {
+  const el = bodyEl.value
+  if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' }
 }
 
-function submit() {
-  router.patch(`/articles/${props.article.id}`, form.value)
-}
+function submit() { router.patch(`/articles/${props.article.id}`, form.value) }
 </script>

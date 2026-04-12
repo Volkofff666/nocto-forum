@@ -1,11 +1,13 @@
 <template>
   <AppLayout>
-    <div class="page-layout page-layout--full" style="max-width:760px;margin:0 auto;">
-      <div style="padding:32px 0;">
-        <h1 style="font-size:22px;font-weight:700;margin-bottom:24px;">Новая статья</h1>
+    <div class="page-wrap page-wrap--full" style="padding-top:20px;">
+      <div class="content-card write-page">
+        <div class="write-page__header">
+          <span class="write-page__title">Новая статья</span>
+          <Link href="/" class="btn btn-ghost btn-sm">✕ Отмена</Link>
+        </div>
 
-        <form @submit.prevent="submit">
-          <!-- Заголовок -->
+        <form @submit.prevent>
           <input
             v-model="form.title"
             type="text"
@@ -15,55 +17,43 @@
           />
           <div v-if="errors.title" class="form-error" style="margin-bottom:12px;">{{ errors.title }}</div>
 
-          <!-- Категория -->
-          <div class="form-group">
-            <label class="form-label">Категория</label>
-            <select v-model="form.category" class="form-select">
-              <option value="" disabled>Выберите категорию</option>
-              <option value="proxy">Прокси</option>
-              <option value="vpn">VPN</option>
-              <option value="security">Безопасность</option>
-              <option value="tools">Инструменты</option>
-              <option value="other">Другое</option>
-            </select>
-            <div v-if="errors.category" class="form-error">{{ errors.category }}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+            <div>
+              <label class="form-label">Категория</label>
+              <select v-model="form.category" class="form-select">
+                <option value="" disabled>Выбрать...</option>
+                <option value="proxy">Прокси</option>
+                <option value="vpn">VPN</option>
+                <option value="security">Безопасность</option>
+                <option value="tools">Инструменты</option>
+                <option value="other">Другое</option>
+              </select>
+              <div v-if="errors.category" class="form-error">{{ errors.category }}</div>
+            </div>
           </div>
 
-          <!-- Краткое описание -->
           <div class="form-group">
-            <label class="form-label">Краткое описание</label>
-            <textarea
-              v-model="form.excerpt"
-              class="form-textarea"
-              placeholder="Короткое описание для анонса в ленте..."
-              rows="2"
-              maxlength="500"
-            ></textarea>
+            <label class="form-label">Краткое описание <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light);">— покажется в ленте</span></label>
+            <textarea v-model="form.excerpt" class="form-textarea" rows="2" maxlength="500" placeholder="Одно–два предложения о чём статья..."></textarea>
             <div v-if="errors.excerpt" class="form-error">{{ errors.excerpt }}</div>
           </div>
 
-          <!-- Тело -->
           <div class="form-group">
             <label class="form-label">Текст статьи</label>
             <textarea
               v-model="form.body"
-              ref="bodyRef"
+              ref="bodyEl"
               class="form-textarea"
-              placeholder="Напишите статью здесь..."
-              rows="16"
-              @input="autoResize"
+              rows="18"
+              placeholder="Пишите здесь. Каждый абзац — отдельная строка."
+              @input="resize"
             ></textarea>
             <div v-if="errors.body" class="form-error">{{ errors.body }}</div>
           </div>
 
-          <!-- Кнопки -->
           <div class="form-actions">
-            <button type="submit" class="btn-outline" @click.prevent="saveDraft">
-              Сохранить черновик
-            </button>
-            <button type="button" class="btn-primary" @click.prevent="saveAndPublish">
-              Опубликовать
-            </button>
+            <button type="button" class="btn btn-outline" @click="saveDraft">Сохранить черновик</button>
+            <button type="button" class="btn btn-primary" @click="savePublish">Опубликовать</button>
           </div>
         </form>
       </div>
@@ -73,42 +63,19 @@
 
 <script setup>
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
-const props = defineProps({
-  errors: { type: Object, default: () => ({}) },
-})
+defineProps({ errors: { type: Object, default: () => ({}) } })
 
-const form = ref({
-  title:    '',
-  excerpt:  '',
-  body:     '',
-  category: '',
-  publish:  false,
-})
+const form = ref({ title: '', excerpt: '', body: '', category: '', publish: false })
+const bodyEl = ref(null)
 
-const bodyRef = ref(null)
-
-function autoResize() {
-  const el = bodyRef.value
-  if (el) {
-    el.style.height = 'auto'
-    el.style.height = el.scrollHeight + 'px'
-  }
+function resize() {
+  const el = bodyEl.value
+  if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' }
 }
 
-function saveDraft() {
-  form.value.publish = false
-  submit()
-}
-
-function saveAndPublish() {
-  form.value.publish = true
-  submit()
-}
-
-function submit() {
-  router.post('/articles', form.value)
-}
+function saveDraft() { form.value.publish = false; router.post('/articles', form.value) }
+function savePublish() { form.value.publish = true; router.post('/articles', form.value) }
 </script>
