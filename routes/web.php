@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUsers;
 use App\Http\Controllers\Admin\ArticleController as AdminArticles;
@@ -42,6 +43,9 @@ Route::get('/my/drafts', [ArticleController::class, 'drafts'])->middleware('auth
 // Закладки
 Route::post('/articles/{article}/bookmark', [BookmarkController::class, 'toggle'])->middleware('auth')->name('bookmarks.toggle');
 Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('auth')->name('bookmarks.index');
+
+// Поиск
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Профиль
 Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');

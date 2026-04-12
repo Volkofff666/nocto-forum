@@ -15,6 +15,26 @@
             <Link href="/?category=tools" class="header__nav-link" :class="{ active: isCategory('tools') }">Инструменты</Link>
           </nav>
 
+          <!-- Search -->
+          <div class="header-search" :class="{ 'header-search--open': searchOpen }">
+            <button v-if="!searchOpen" class="header-search__icon" @click="openSearch" title="Поиск">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div v-else class="header-search__form">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--text-muted)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input
+                ref="searchEl"
+                v-model="searchQ"
+                type="search"
+                class="header-search__input"
+                placeholder="Поиск..."
+                @keydown.enter="doSearch"
+                @keydown.esc="closeSearch"
+              />
+              <button class="header-search__close" @click="closeSearch">✕</button>
+            </div>
+          </div>
+
           <div class="header__right">
             <template v-if="user">
               <Link href="/articles/create" class="btn btn-primary btn-sm">Написать</Link>
@@ -118,15 +138,33 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import Toast from '@/Components/Toast.vue'
 
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
 
-const menuOpen = ref(false)
+const menuOpen   = ref(false)
 const mobileOpen = ref(false)
+
+// Search
+const searchOpen = ref(false)
+const searchQ    = ref('')
+const searchEl   = ref(null)
+
+async function openSearch() {
+  searchOpen.value = true
+  await nextTick()
+  searchEl.value?.focus()
+}
+function closeSearch() { searchOpen.value = false; searchQ.value = '' }
+function doSearch() {
+  const q = searchQ.value.trim()
+  if (!q) return
+  closeSearch()
+  router.get('/search', { q })
+}
 
 const isHome = computed(() => page.url === '/' || (page.url.startsWith('/?') && !page.url.includes('category=')))
 function isCategory(cat) {
