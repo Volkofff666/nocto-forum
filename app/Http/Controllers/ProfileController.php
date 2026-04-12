@@ -14,16 +14,21 @@ class ProfileController extends Controller
 
         $articles = $user->articles()
             ->published()
+            ->with('user')
             ->withCount('comments')
             ->latest()
             ->paginate(10);
 
-        $totalVotes = $user->articles()->sum('votes_count');
+        $totalVotes    = (int) $user->articles()->sum('votes_count');
+        $totalViews    = (int) $user->articles()->sum('views_count');
+        $totalComments = (int) $user->comments()->count();
 
         return Inertia::render('Profile/Show', [
-            'profileUser'  => $user,
-            'articles'     => $articles,
-            'totalVotes'   => $totalVotes,
+            'profileUser'   => $user,
+            'articles'      => $articles,
+            'totalVotes'    => $totalVotes,
+            'totalViews'    => $totalViews,
+            'totalComments' => $totalComments,
         ]);
     }
 }
