@@ -11,16 +11,16 @@
             <button class="btn btn-primary btn-sm" style="margin-left:auto;" @click="publish">Опубликовать</button>
           </div>
 
-          <!-- Cover image -->
-          <div v-if="article.cover_url" class="article-cover">
-            <img :src="article.cover_url" :alt="article.title" @error="e => e.target.parentElement.style.display='none'" />
-          </div>
-
           <!-- Category + title -->
           <div class="article-category">
             <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
           </div>
           <h1 class="article-title">{{ article.title }}</h1>
+
+          <!-- Cover image (under title) -->
+          <div v-if="article.cover_url" class="article-cover">
+            <img :src="article.cover_url" :alt="article.title" @error="e => e.target.parentElement.style.display='none'" />
+          </div>
 
           <!-- Byline -->
           <div class="article-byline">
@@ -209,7 +209,7 @@ const totalComments = computed(() =>
   props.article.comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0)
 )
 
-const cats = { proxy: 'Прокси', vpn: 'VPN', security: 'Безопасность', tools: 'Инструменты', other: 'Другое' }
+const cats = { tech: 'Технологии', security: 'Безопасность', guides: 'Гайды', news: 'Новости', other: 'Другое' }
 function catLabel(c) { return cats[c] || c }
 
 function formatDate(d) {
