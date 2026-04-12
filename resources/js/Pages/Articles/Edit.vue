@@ -13,6 +13,7 @@
             type="text"
             class="article-title-input"
             maxlength="255"
+            placeholder="Заголовок статьи..."
           />
           <div v-if="errors.title" class="form-error" style="margin-bottom:12px;">{{ errors.title }}</div>
 
@@ -37,14 +38,8 @@
 
           <div class="form-group">
             <label class="form-label">Текст статьи</label>
-            <textarea
-              v-model="form.body"
-              ref="bodyEl"
-              class="form-textarea"
-              rows="18"
-              @input="resize"
-            ></textarea>
-            <div v-if="errors.body" class="form-error">{{ errors.body }}</div>
+            <RichEditor v-model="form.body" />
+            <div v-if="errors.body" class="form-error" style="margin-top:6px;">{{ errors.body }}</div>
           </div>
 
           <div class="form-actions">
@@ -61,6 +56,7 @@
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import RichEditor from '@/Components/RichEditor.vue'
 
 const props = defineProps({
   article: Object,
@@ -73,12 +69,6 @@ const form = ref({
   body:     props.article.body,
   category: props.article.category,
 })
-
-const bodyEl = ref(null)
-function resize() {
-  const el = bodyEl.value
-  if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' }
-}
 
 function submit() { router.patch(`/articles/${props.article.id}`, form.value) }
 </script>

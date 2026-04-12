@@ -40,15 +40,8 @@
 
           <div class="form-group">
             <label class="form-label">Текст статьи</label>
-            <textarea
-              v-model="form.body"
-              ref="bodyEl"
-              class="form-textarea"
-              rows="18"
-              placeholder="Пишите здесь. Каждый абзац — отдельная строка."
-              @input="resize"
-            ></textarea>
-            <div v-if="errors.body" class="form-error">{{ errors.body }}</div>
+            <RichEditor v-model="form.body" />
+            <div v-if="errors.body" class="form-error" style="margin-top:6px;">{{ errors.body }}</div>
           </div>
 
           <div class="form-actions">
@@ -65,17 +58,12 @@
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import RichEditor from '@/Components/RichEditor.vue'
 
 defineProps({ errors: { type: Object, default: () => ({}) } })
 
 const form = ref({ title: '', excerpt: '', body: '', category: '', publish: false })
-const bodyEl = ref(null)
 
-function resize() {
-  const el = bodyEl.value
-  if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' }
-}
-
-function saveDraft() { form.value.publish = false; router.post('/articles', form.value) }
-function savePublish() { form.value.publish = true; router.post('/articles', form.value) }
+function saveDraft()   { form.value.publish = false; router.post('/articles', form.value) }
+function savePublish() { form.value.publish = true;  router.post('/articles', form.value) }
 </script>

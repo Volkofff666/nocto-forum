@@ -36,7 +36,8 @@
           </div>
 
           <!-- Body -->
-          <div class="article-body">
+          <div v-if="isHtmlBody" class="article-body article-body--rich" v-html="article.body"></div>
+          <div v-else class="article-body">
             <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
           </div>
 
@@ -172,9 +173,14 @@ const canEdit = computed(() => {
   return u && (u.id === props.article.user_id || u.role === 'admin')
 })
 
-const readTime = computed(() =>
-  Math.max(1, Math.ceil(props.article.body.trim().split(/\s+/).length / 200))
-)
+const isHtmlBody = computed(() => props.article.body.trimStart().startsWith('<'))
+
+const readTime = computed(() => {
+  const text = isHtmlBody.value
+    ? props.article.body.replace(/<[^>]+>/g, ' ')
+    : props.article.body
+  return Math.max(1, Math.ceil(text.trim().split(/\s+/).length / 200))
+})
 
 const paragraphs = computed(() =>
   props.article.body.split('\n').filter(p => p.trim())

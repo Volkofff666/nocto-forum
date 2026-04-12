@@ -12,6 +12,9 @@
         "axios": "^1.7.4",
         "laravel-vite-plugin": "^1.0",
         "vue": "^3.4.0",
-        "vite": "^6.0"
+        "vite": "^6.0",
+    "@tiptap/vue-3": "^2.10",
+    "@tiptap/pm": "^2.10",
+    "@tiptap/starter-kit": "^2.10"
     }
 }
