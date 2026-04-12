@@ -1,0 +1,18 @@
+noctocode.online, www.noctocode.online {
+    root * /var/www/public
+
+    encode gzip zstd
+
+    php_fastcgi 127.0.0.1:9000
+
+    file_server
+
+    # Immutable cache for compiled assets
+    @immutable path /build/*
+    header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+    log {
+        output stdout
+        format console
+    }
+}

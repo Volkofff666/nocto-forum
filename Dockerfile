@@ -1,7 +1,9 @@
 FROM php:8.3-fpm-alpine
 
+# Copy Caddy binary from official image — no download needed
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/local/bin/caddy
+
 RUN apk add --no-cache \
-    nginx \
     nodejs \
     npm \
     postgresql-client \
@@ -30,11 +32,11 @@ RUN npm install && npm run build && rm -rf node_modules
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+COPY docker/Caddyfile       /etc/caddy/Caddyfile
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/entrypoint.sh /entrypoint.sh
+COPY docker/entrypoint.sh   /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 80
+EXPOSE 80 443
 
 ENTRYPOINT ["/entrypoint.sh"]

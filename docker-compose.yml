@@ -9,10 +9,10 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"  # HTTP/3 (QUIC)
     volumes:
       - storage_data:/var/www/storage
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
+      - caddy_data:/caddy  # SSL certs + Caddy state
     depends_on:
       postgres:
         condition: service_healthy
@@ -40,18 +40,8 @@ services:
     volumes:
       - redisdata:/data
 
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - certbot_conf:/etc/letsencrypt
-      - certbot_www:/var/www/certbot
-    entrypoint: >
-      sh -c "trap exit TERM; while :;
-      do certbot renew --quiet; sleep 12h & wait; done"
-
 volumes:
   pgdata:
   redisdata:
-  certbot_conf:
-  certbot_www:
   storage_data:
+  caddy_data:
