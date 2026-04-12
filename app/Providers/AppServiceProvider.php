@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
-use SocialiteProviders\Telegram\TelegramExtendSocialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Telegram Socialite provider
         Event::listen(function (SocialiteWasCalled $event) {
-            $event->extendSocialite('telegram', TelegramExtendSocialite::class);
+            $event->extendSocialite('telegram', \SocialiteProviders\Telegram\Provider::class);
         });
     }
 }
