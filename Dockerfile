@@ -5,6 +5,7 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     postgresql-client \
+    postgresql-dev \
     supervisor \
     libzip-dev \
     zip \
@@ -14,7 +15,7 @@ RUN apk add --no-cache \
 RUN docker-php-ext-install pdo pdo_pgsql opcache pcntl zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && apk del $PHPIZE_DEPS
+    && apk del $PHPIZE_DEPS postgresql-dev
 
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin --filename=composer
