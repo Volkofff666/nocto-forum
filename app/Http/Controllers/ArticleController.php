@@ -13,18 +13,21 @@ class ArticleController extends Controller
     public function index(Request $request): Response
     {
         $category = $request->input('category');
-        $sort = $request->input('sort', 'latest');
+        $sort     = $request->input('sort', 'latest');
+        $tag      = $request->input('tag');
 
-        $cacheKey = 'articles.' . md5(json_encode(['category' => $category, 'sort' => $sort, 'page' => $request->input('page', 1)]));
+        $cacheKey = 'articles.' . md5(json_encode([
+            'category' => $category, 'sort' => $sort,
+            'tag' => $tag, 'page' => $request->input('page', 1),
+        ]));
 
-        $articles = Cache::remember($cacheKey, 60, function () use ($category, $sort) {
+        $articles = Cache::remember($cacheKey, 60, function () use ($category, $sort, $tag) {
             $query = Article::published()
                 ->with('user')
                 ->withCount('comments');
 
-            if ($category) {
-                $query->byCategory($category);
-            }
+            if ($category) $query->byCategory($category);
+            if ($tag)      $query->whereJsonContains('tags', $tag);
 
             return $query->ordered($sort)->paginate(10)->withQueryString();
         });
@@ -36,10 +39,15 @@ class ArticleController extends Controller
                 ->pluck('count', 'category');
         });
 
+        $bookmarkedIds = auth()->check()
+            ? auth()->user()->bookmarks()->pluck('article_id')->toArray()
+            : [];
+
         return Inertia::render('Articles/Index', [
             'articles'       => $articles,
-            'filters'        => ['category' => $category, 'sort' => $sort],
+            'filters'        => ['category' => $category, 'sort' => $sort, 'tag' => $tag],
             'categoryCounts' => $categoryCounts,
+            'bookmarkedIds'  => $bookmarkedIds,
         ]);
     }
 
@@ -51,19 +59,24 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title'    => 'required|string|max:255',
-            'excerpt'  => 'required|string|max:500',
-            'body'     => 'required|string',
-            'category' => 'required|in:proxy,vpn,security,tools,other',
-            'publish'  => 'sometimes|boolean',
+            'title'     => 'required|string|max:255',
+            'excerpt'   => 'required|string|max:500',
+            'body'      => 'required|string',
+            'category'  => 'required|in:proxy,vpn,security,tools,other',
+            'cover_url' => 'nullable|url|max:500',
+            'tags'      => 'nullable|array|max:7',
+            'tags.*'    => 'string|max:40',
+            'publish'   => 'sometimes|boolean',
         ]);
 
         $article = $request->user()->articles()->create([
-            'title'    => $validated['title'],
-            'excerpt'  => $validated['excerpt'],
-            'body'     => $validated['body'],
-            'category' => $validated['category'],
-            'status'   => isset($validated['publish']) && $validated['publish'] ? 'published' : 'draft',
+            'title'     => $validated['title'],
+            'excerpt'   => $validated['excerpt'],
+            'body'      => $validated['body'],
+            'category'  => $validated['category'],
+            'cover_url' => $validated['cover_url'] ?? null,
+            'tags'      => $validated['tags'] ?? [],
+            'status'    => isset($validated['publish']) && $validated['publish'] ? 'published' : 'draft',
         ]);
 
         if ($article->status === 'published') {
@@ -102,10 +115,15 @@ class ArticleController extends Controller
             $userVote = $vote?->type;
         }
 
+        $isBookmarked = auth()->check()
+            ? auth()->user()->bookmarks()->where('article_id', $article->id)->exists()
+            : false;
+
         return Inertia::render('Articles/Show', [
-            'article'  => $article,
-            'related'  => $related,
-            'userVote' => $userVote,
+            'article'      => $article,
+            'related'      => $related,
+            'userVote'     => $userVote,
+            'isBookmarked' => $isBookmarked,
         ]);
     }
 
@@ -123,10 +141,13 @@ class ArticleController extends Controller
         $this->authorize('update', $article);
 
         $validated = $request->validate([
-            'title'    => 'required|string|max:255',
-            'excerpt'  => 'required|string|max:500',
-            'body'     => 'required|string',
-            'category' => 'required|in:proxy,vpn,security,tools,other',
+            'title'     => 'required|string|max:255',
+            'excerpt'   => 'required|string|max:500',
+            'body'      => 'required|string',
+            'category'  => 'required|in:proxy,vpn,security,tools,other',
+            'cover_url' => 'nullable|url|max:500',
+            'tags'      => 'nullable|array|max:7',
+            'tags.*'    => 'string|max:40',
         ]);
 
         $article->update($validated);

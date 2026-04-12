@@ -11,6 +11,11 @@
             <button class="btn btn-primary btn-sm" style="margin-left:auto;" @click="publish">Опубликовать</button>
           </div>
 
+          <!-- Cover image -->
+          <div v-if="article.cover_url" class="article-cover">
+            <img :src="article.cover_url" :alt="article.title" @error="e => e.target.parentElement.style.display='none'" />
+          </div>
+
           <!-- Category + title -->
           <div class="article-category">
             <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
@@ -41,11 +46,23 @@
             <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
           </div>
 
+          <!-- Tags -->
+          <div v-if="article.tags && article.tags.length" class="article-tags">
+            <a
+              v-for="tag in article.tags" :key="tag"
+              :href="`/?tag=${encodeURIComponent(tag)}`"
+              class="article-tag article-tag--lg"
+            >#{{ tag }}</a>
+          </div>
+
           <!-- Vote bar -->
           <VoteBar :article="article" :userVote="userVote" />
 
-          <!-- Share -->
-          <ShareBar :title="article.title" :url="pageUrl" />
+          <!-- Share + Bookmark -->
+          <div class="article-actions-bar">
+            <BookmarkButton :articleId="article.id" :isBookmarked="isBookmarked" />
+            <ShareBar :title="article.title" :url="pageUrl" />
+          </div>
 
           <!-- Related -->
           <div v-if="related.length" class="related">
@@ -156,12 +173,14 @@ import { Link, router, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import VoteBar from '@/Components/VoteBar.vue'
 import ShareBar from '@/Components/ShareBar.vue'
+import BookmarkButton from '@/Components/BookmarkButton.vue'
 import CommentItem from '@/Components/CommentItem.vue'
 
 const props = defineProps({
-  article: Object,
-  related: Array,
-  userVote: String,
+  article:      Object,
+  related:      Array,
+  userVote:     String,
+  isBookmarked: { type: Boolean, default: false },
 })
 
 const page = usePage()

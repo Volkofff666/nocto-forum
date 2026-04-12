@@ -20,6 +20,12 @@ class Article extends Model
         'status',
         'votes_count',
         'views_count',
+        'tags',
+        'cover_url',
+    ];
+
+    protected $casts = [
+        'tags' => 'array',
     ];
 
     protected static function booted(): void
@@ -88,5 +94,10 @@ class Article extends Model
     public function votes()
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
     }
 }

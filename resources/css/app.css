@@ -291,11 +291,10 @@ textarea, input, select { font-family: inherit; }
 /* ── Article Card ─────────────────────────────── */
 
 .article-card {
-  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   transition: background 0.1s;
+  overflow: hidden;
 }
-.article-card:last-child { border-bottom: none; }
 .article-card:hover { background: rgba(0,0,0,0.01); }
 
 .article-card__meta {
@@ -1082,6 +1081,169 @@ textarea, input, select { font-family: inherit; }
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ── Tags ─────────────────────────────────────── */
+
+.article-tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+  white-space: nowrap;
+}
+.article-tag:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+.article-tag--lg { font-size: 13px; padding: 4px 12px; }
+
+.article-card__tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.article-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+
+/* ── Tag filter bar ───────────────────────────── */
+
+.tag-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--accent-light);
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text);
+}
+.tag-filter-bar__clear {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.tag-filter-bar__clear:hover { background: var(--bg-hover); color: var(--text); }
+
+/* ── Tag input ────────────────────────────────── */
+
+.tag-input {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg);
+  cursor: text;
+  transition: border-color 0.12s;
+}
+.tag-input:focus-within { border-color: var(--accent); }
+
+.tag-input__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
+  min-height: 42px;
+  align-items: center;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 10px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid rgba(0, 123, 255, 0.25);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tag-chip__remove {
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 1px;
+  opacity: 0.7;
+  transition: opacity 0.1s;
+}
+.tag-chip__remove:hover { opacity: 1; }
+
+.tag-input__field {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+  min-width: 120px;
+  flex: 1;
+}
+.tag-input__field::placeholder { color: var(--text-light); }
+
+.tag-input__hint {
+  padding: 0 10px 7px;
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ── Cover image ──────────────────────────────── */
+
+.article-card__cover-wrap {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  max-height: 220px;
+}
+.article-card__cover {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s;
+}
+.article-card__cover-wrap:hover .article-card__cover { transform: scale(1.02); }
+
+.article-card__body { padding: 20px 24px; }
+/* override: card without cover uses padding via body */
+.article-card { padding: 0; }
+.article-card:last-child { border-bottom: none; }
+
+.article-cover {
+  margin: -28px -32px 24px;
+  overflow: hidden;
+  max-height: 360px;
+}
+.article-cover img {
+  width: 100%;
+  height: 360px;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-preview {
+  margin-top: 10px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  max-height: 180px;
+}
+.cover-preview img { width: 100%; height: 180px; object-fit: cover; display: block; }
+
+/* ── Bookmark button ──────────────────────────── */
+
+.bookmark-btn { gap: 5px; }
+.bookmark-btn--active { color: var(--accent); }
+.bookmark-btn--active:hover { color: var(--accent); background: var(--accent-light); }
+
+/* ── Article actions bar (bookmark + share) ───── */
+
+.article-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
 
 /* ── Responsive ───────────────────────────────── */
 

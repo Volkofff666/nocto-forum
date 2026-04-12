@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
@@ -33,6 +34,10 @@ Route::patch('/settings', [SettingsController::class, 'update'])->middleware('au
 
 // Мои черновики
 Route::get('/my/drafts', [ArticleController::class, 'drafts'])->middleware('auth')->name('articles.drafts');
+
+// Закладки
+Route::post('/articles/{article}/bookmark', [BookmarkController::class, 'toggle'])->middleware('auth')->name('bookmarks.toggle');
+Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('auth')->name('bookmarks.index');
 
 // Профиль
 Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');

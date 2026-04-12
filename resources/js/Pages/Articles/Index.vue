@@ -6,13 +6,19 @@
         <div class="content-card">
           <!-- Tab bar -->
           <div class="tab-bar">
-            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }" @click="setSort('latest')">Новое</button>
-            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }" @click="setSort('popular')">Популярное</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }"   @click="setSort('latest')">Новое</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }"  @click="setSort('popular')">Популярное</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'discussed' }" @click="setSort('discussed')">Обсуждаемое</button>
           </div>
 
+          <!-- Tag filter notice -->
+          <div v-if="tag" class="tag-filter-bar">
+            <span>Тег: <strong>#{{ tag }}</strong></span>
+            <button class="tag-filter-bar__clear" @click="clearTag">× Сбросить</button>
+          </div>
+
           <!-- Category pills -->
-          <div class="cat-pills">
+          <div v-else class="cat-pills">
             <button class="cat-pill" :class="{ 'cat-pill--active': !category }" @click="setCategory(null)">Все</button>
             <button
               v-for="c in categories" :key="c.value"
@@ -24,7 +30,12 @@
 
           <!-- Articles -->
           <div v-if="articles.data.length">
-            <ArticleCard v-for="a in articles.data" :key="a.id" :article="a" />
+            <ArticleCard
+              v-for="a in articles.data"
+              :key="a.id"
+              :article="a"
+              :isBookmarked="bookmarkedIds.includes(a.id)"
+            />
           </div>
           <div v-else class="empty">
             <div class="empty__icon">📭</div>
@@ -48,7 +59,6 @@
 
       <!-- Sidebar -->
       <aside class="sidebar sidebar-sticky">
-        <!-- Write CTA -->
         <div v-if="$page.props.auth?.user" class="sidebar-card write-cta">
           <p>Поделитесь опытом с сообществом</p>
           <Link href="/articles/create" class="btn btn-primary" style="width:100%;">Написать статью</Link>
@@ -61,7 +71,6 @@
           </a>
         </div>
 
-        <!-- Telegram channel -->
         <div class="sidebar-card tg-widget">
           <div class="tg-widget__count">9 047</div>
           <div class="tg-widget__label">подписчиков в Telegram</div>
@@ -70,7 +79,6 @@
           </a>
         </div>
 
-        <!-- Categories -->
         <div class="sidebar-card">
           <div class="sidebar-card__title">Категории</div>
           <div class="cat-list">
@@ -92,13 +100,15 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
 
 const props = defineProps({
-  articles: Object,
-  filters: Object,
-  categoryCounts: Object,
+  articles:      Object,
+  filters:       Object,
+  categoryCounts:Object,
+  bookmarkedIds: { type: Array, default: () => [] },
 })
 
-const sort = ref(props.filters?.sort || 'latest')
+const sort     = ref(props.filters?.sort || 'latest')
 const category = ref(props.filters?.category || null)
+const tag      = ref(props.filters?.tag || null)
 
 const categories = [
   { value: 'proxy',    label: 'Прокси' },
@@ -108,12 +118,14 @@ const categories = [
   { value: 'other',    label: 'Другое' },
 ]
 
-function setSort(s) { sort.value = s; reload() }
+function setSort(s)     { sort.value = s; reload() }
 function setCategory(c) { category.value = c; reload() }
+function clearTag()     { tag.value = null; reload() }
 
 function reload() {
   const params = { sort: sort.value }
   if (category.value) params.category = category.value
+  if (tag.value)      params.tag = tag.value
   router.get('/', params, { preserveState: true, replace: true })
 }
 </script>
