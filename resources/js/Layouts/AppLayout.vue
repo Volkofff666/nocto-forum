@@ -9,10 +9,7 @@
 
           <nav class="header__nav">
             <Link href="/" class="header__nav-link" :class="{ active: isHome }">Лента</Link>
-            <Link href="/?category=proxy" class="header__nav-link" :class="{ active: isCategory('proxy') }">Прокси</Link>
-            <Link href="/?category=vpn" class="header__nav-link" :class="{ active: isCategory('vpn') }">VPN</Link>
-            <Link href="/?category=security" class="header__nav-link" :class="{ active: isCategory('security') }">Безопасность</Link>
-            <Link href="/?category=tools" class="header__nav-link" :class="{ active: isCategory('tools') }">Инструменты</Link>
+            <Link href="/tools" class="header__nav-link" :class="{ active: isTools }">Инструменты</Link>
           </nav>
 
           <!-- Search -->
@@ -105,10 +102,7 @@
     <!-- Mobile nav -->
     <div class="mobile-nav" :class="{ 'mobile-nav--open': mobileOpen }">
       <Link href="/" class="header__nav-link" @click="mobileOpen = false">Лента</Link>
-      <Link href="/?category=proxy" class="header__nav-link" @click="mobileOpen = false">Прокси</Link>
-      <Link href="/?category=vpn" class="header__nav-link" @click="mobileOpen = false">VPN</Link>
-      <Link href="/?category=security" class="header__nav-link" @click="mobileOpen = false">Безопасность</Link>
-      <Link href="/?category=tools" class="header__nav-link" @click="mobileOpen = false">Инструменты</Link>
+      <Link href="/tools" class="header__nav-link" @click="mobileOpen = false">Инструменты</Link>
       <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;" />
       <template v-if="user">
         <Link :href="`/profile/${user.username}`" class="header__nav-link" @click="mobileOpen = false">Профиль</Link>
@@ -166,10 +160,8 @@ function doSearch() {
   router.get('/search', { q })
 }
 
-const isHome = computed(() => page.url === '/' || (page.url.startsWith('/?') && !page.url.includes('category=')))
-function isCategory(cat) {
-  return page.url.includes(`category=${cat}`)
-}
+const isHome  = computed(() => page.url === '/' || (page.url.startsWith('/?') && !page.url.includes('category=')))
+const isTools = computed(() => page.url.startsWith('/tools'))
 
 function closeMenu() { menuOpen.value = false }
 

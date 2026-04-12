@@ -23,10 +23,10 @@
             <div>
               <label class="form-label">Категория</label>
               <select v-model="form.category" class="form-select">
-                <option value="proxy">Прокси</option>
-                <option value="vpn">VPN</option>
+                <option value="tech">Технологии</option>
                 <option value="security">Безопасность</option>
-                <option value="tools">Инструменты</option>
+                <option value="guides">Гайды</option>
+                <option value="news">Новости</option>
                 <option value="other">Другое</option>
               </select>
             </div>

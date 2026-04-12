@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUsers;
 use App\Http\Controllers\Admin\ArticleController as AdminArticles;
@@ -46,6 +47,9 @@ Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('a
 
 // Поиск
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+
+// Инструменты
+Route::get('/tools', [ToolsController::class, 'index'])->name('tools');
 
 // Профиль
 Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');

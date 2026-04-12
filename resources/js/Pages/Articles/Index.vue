@@ -119,10 +119,10 @@ const category = ref(props.filters?.category || null)
 const tag      = ref(props.filters?.tag || null)
 
 const categories = [
-  { value: 'proxy',    label: 'Прокси' },
-  { value: 'vpn',      label: 'VPN' },
+  { value: 'tech',     label: 'Технологии' },
   { value: 'security', label: 'Безопасность' },
-  { value: 'tools',    label: 'Инструменты' },
+  { value: 'guides',   label: 'Гайды' },
+  { value: 'news',     label: 'Новости' },
   { value: 'other',    label: 'Другое' },
 ]
 
