@@ -16,3 +16,5 @@ yarn-error.log
 /.vscode
 docker/nginx-ssl.conf
 nocto-hub-promt.md
+/.claude
+CLAUDE.md

@@ -29,13 +29,10 @@
       <div class="nb-meta">
         <div class="nb-meta__field">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+          <!-- FIXED: replaced old hardcoded <option> list with v-for over shared CATEGORIES composable -->
           <select v-model="form.category" class="nb-meta__select">
             <option value="" disabled>Категория</option>
-            <option value="tech">Технологии</option>
-            <option value="security">Безопасность</option>
-            <option value="guides">Гайды</option>
-            <option value="news">Новости</option>
-            <option value="other">Другое</option>
+            <option v-for="cat in CATEGORIES" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
           </select>
         </div>
         <div class="nb-meta__sep"></div>
@@ -58,6 +55,7 @@
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import ArticleEditor from '@/Components/ArticleEditor.vue'
+import { CATEGORIES } from '@/composables/useCategories' // FIXED: replaced old hardcoded categories with shared composable
 
 const props = defineProps({
   article: Object,

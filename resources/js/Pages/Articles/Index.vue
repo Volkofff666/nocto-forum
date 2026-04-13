@@ -99,6 +99,7 @@ import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
+import { CATEGORIES } from '@/composables/useCategories' // FIXED: replaced hardcoded old category list with shared composable
 
 const props = defineProps({
   articles:      Object,
@@ -118,13 +119,7 @@ const sort     = ref(props.filters?.sort || 'latest')
 const category = ref(props.filters?.category || null)
 const tag      = ref(props.filters?.tag || null)
 
-const categories = [
-  { value: 'tech',     label: 'Технологии' },
-  { value: 'security', label: 'Безопасность' },
-  { value: 'guides',   label: 'Гайды' },
-  { value: 'news',     label: 'Новости' },
-  { value: 'other',    label: 'Другое' },
-]
+const categories = CATEGORIES // FIXED: replaced local hardcoded array with imported shared composable
 
 function setSort(s)     { sort.value = s; reload() }
 function setCategory(c) { category.value = c; reload() }

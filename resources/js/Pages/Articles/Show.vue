@@ -41,7 +41,7 @@
           </div>
 
           <!-- Body -->
-          <div v-if="isHtmlBody" class="article-body article-body--rich" v-html="article.body"></div>
+          <div v-if="isHtmlBody" class="article-body article-body--rich" v-html="sanitize(article.body)"></div> <!-- FIXED: sanitized v-html output to prevent XSS in article body -->
           <div v-else class="article-body">
             <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
           </div>
@@ -175,6 +175,8 @@ import VoteBar from '@/Components/VoteBar.vue'
 import ShareBar from '@/Components/ShareBar.vue'
 import BookmarkButton from '@/Components/BookmarkButton.vue'
 import CommentItem from '@/Components/CommentItem.vue'
+import { useCategoryLabel } from '@/composables/useCategories' // FIXED: replaced local cats map with shared composable
+import { sanitize } from '@/utils/sanitize' // FIXED: imported sanitize helper to prevent XSS via v-html
 
 const props = defineProps({
   article:      Object,
@@ -209,8 +211,7 @@ const totalComments = computed(() =>
   props.article.comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0)
 )
 
-const cats = { tech: 'Технологии', security: 'Безопасность', guides: 'Гайды', news: 'Новости', other: 'Другое' }
-function catLabel(c) { return cats[c] || c }
+function catLabel(c) { return useCategoryLabel(c) } // FIXED: removed local cats map; delegates to shared composable
 
 function formatDate(d) {
   return new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })

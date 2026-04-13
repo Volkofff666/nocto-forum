@@ -68,14 +68,14 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3'
 import BookmarkButton from '@/Components/BookmarkButton.vue'
+import { useCategoryLabel } from '@/composables/useCategories' // FIXED: removed hardcoded old category map (proxy, vpn, tools); now uses shared composable
 
 const props = defineProps({
   article:      Object,
   isBookmarked: { type: Boolean, default: false },
 })
 
-const cats = { proxy: 'Прокси', vpn: 'VPN', security: 'Безопасность', tools: 'Инструменты', other: 'Другое' }
-function catLabel(c) { return cats[c] || c }
+function catLabel(c) { return useCategoryLabel(c) } // FIXED: delegates to shared composable instead of local hardcoded map
 
 function readTime(body) {
   const text = body?.trimStart().startsWith('<') ? body.replace(/<[^>]+>/g, ' ') : (body || '')

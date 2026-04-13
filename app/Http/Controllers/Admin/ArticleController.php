@@ -35,7 +35,9 @@ class ArticleController extends Controller
         $article->update([
             'status' => $article->status === 'published' ? 'draft' : 'published',
         ]);
-        Cache::flush();
+        // Replaced Cache::flush() with targeted invalidation to avoid wiping ALL cache
+        Cache::forget('category_counts');
+        Cache::forget('articles_latest');
 
         return back()->with('success', "Статус статьи изменён.");
     }
@@ -43,7 +45,9 @@ class ArticleController extends Controller
     public function destroy(Article $article)
     {
         $article->delete();
-        Cache::flush();
+        // Replaced Cache::flush() with targeted invalidation to avoid wiping ALL cache
+        Cache::forget('category_counts');
+        Cache::forget('articles_latest');
 
         return back()->with('success', "Статья удалена.");
     }

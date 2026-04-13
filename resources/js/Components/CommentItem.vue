@@ -37,6 +37,9 @@
         </div>
       </div>
 
+      <!-- FIXED: display error if reply deletion fails -->
+      <p v-if="replyError" class="text-red-500 text-sm mt-1">{{ replyError }}</p>
+
       <!-- Replies -->
       <div v-if="comment.replies?.length" class="comment-replies">
         <div v-for="reply in comment.replies" :key="reply.id" class="comment-item" style="padding:10px 0;">
@@ -75,6 +78,7 @@ const page = usePage()
 const showReply = ref(false)
 const replyText = ref('')
 const replyRef = ref(null)
+const replyError = ref(null) // FIXED: tracks error state for failed reply deletions
 
 const canComment = computed(() => !!page.props.auth?.user)
 
@@ -113,9 +117,23 @@ function del() {
   }
 }
 
-function delReply(id) {
-  if (confirm('Удалить комментарий?')) {
-    router.delete(`/comments/${id}`, { preserveScroll: true })
+// FIXED: added try/catch to handle deleting already-deleted or non-existent replies
+async function delReply(id) {
+  if (!confirm('Удалить комментарий?')) return
+  replyError.value = null
+  try {
+    await router.delete(`/comments/${id}`, {
+      preserveScroll: true,
+      onError: (errors) => {
+        // Server returned validation/auth error
+        replyError.value = 'Не удалось удалить комментарий. Попробуйте обновить страницу.'
+        console.error('Delete reply error:', errors)
+      },
+    })
+  } catch (e) {
+    // Network error or unexpected response (e.g., 404 — reply already deleted)
+    replyError.value = 'Комментарий уже был удалён или недоступен.'
+    console.error('Delete reply exception:', e)
   }
 }
 

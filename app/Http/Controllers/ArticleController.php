@@ -99,6 +99,11 @@ class ArticleController extends Controller
             ])
             ->firstOrFail();
 
+        // Security: prevent non-authors from accessing draft articles directly by slug
+        if ($article->status === 'draft' && auth()->id() !== $article->user_id) {
+            abort(403);
+        }
+
         $sessionKey = 'viewed.' . $article->id;
         if (!session()->has($sessionKey)) {
             $article->increment('views_count');
@@ -195,6 +200,9 @@ class ArticleController extends Controller
 
     private function clearArticleCache(): void
     {
-        Cache::flush();
+        // Replaced Cache::flush() (wiped ALL cache including sessions/rate-limits)
+        // with targeted invalidation of the known article-related cache keys.
+        Cache::forget('category_counts');
+        Cache::forget('articles_latest');
     }
 }
