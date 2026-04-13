@@ -1,90 +1,187 @@
 <template>
-  <AppLayout>
-    <div class="page-wrap page-wrap--full" style="padding-top:20px;">
-      <div class="content-card write-page">
-        <div class="write-page__header">
-          <span class="write-page__title">Новая статья</span>
-          <Link href="/" class="btn btn-ghost btn-sm">✕ Отмена</Link>
-        </div>
+  <div class="nb-wrap">
 
-        <form @submit.prevent>
-          <!-- Title -->
-          <input
-            v-model="form.title"
-            type="text"
-            class="article-title-input"
-            placeholder="Заголовок статьи..."
-            maxlength="255"
-          />
-          <div v-if="errors.title" class="form-error" style="margin-bottom:12px;">{{ errors.title }}</div>
-
-          <!-- Category -->
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
-            <div>
-              <label class="form-label">Категория</label>
-              <select v-model="form.category" class="form-select">
-                <option value="" disabled>Выбрать...</option>
-                <option value="tech">Технологии</option>
-                <option value="security">Безопасность</option>
-                <option value="guides">Гайды</option>
-                <option value="news">Новости</option>
-                <option value="other">Другое</option>
-              </select>
-              <div v-if="errors.category" class="form-error">{{ errors.category }}</div>
-            </div>
-          </div>
-
-          <!-- Cover image -->
-          <div class="form-group">
-            <label class="form-label">Обложка <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light);">— URL картинки (необязательно)</span></label>
-            <input v-model="form.cover_url" type="url" class="form-input" placeholder="https://..." />
-            <div v-if="form.cover_url" class="cover-preview">
-              <img :src="form.cover_url" alt="Обложка" @error="e => e.target.style.display='none'" />
-            </div>
-            <div v-if="errors.cover_url" class="form-error">{{ errors.cover_url }}</div>
-          </div>
-
-          <!-- Excerpt -->
-          <div class="form-group">
-            <label class="form-label">Краткое описание <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light);">— покажется в ленте</span></label>
-            <textarea v-model="form.excerpt" class="form-textarea" rows="2" maxlength="500" placeholder="Одно–два предложения о чём статья..."></textarea>
-            <div v-if="errors.excerpt" class="form-error">{{ errors.excerpt }}</div>
-          </div>
-
-          <!-- Body -->
-          <div class="form-group">
-            <label class="form-label">Текст статьи</label>
-            <RichEditor v-model="form.body" />
-            <div v-if="errors.body" class="form-error" style="margin-top:6px;">{{ errors.body }}</div>
-          </div>
-
-          <!-- Tags -->
-          <div class="form-group">
-            <label class="form-label">Теги</label>
-            <TagInput v-model="form.tags" />
-          </div>
-
-          <div class="form-actions">
-            <button type="button" class="btn btn-outline" @click="saveDraft">Сохранить черновик</button>
-            <button type="button" class="btn btn-primary" @click="savePublish">Опубликовать</button>
-          </div>
-        </form>
+    <!-- Top bar -->
+    <div class="nb-bar">
+      <Link href="/" class="nb-bar__back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        <span class="nb-bar__back-label">Назад</span>
+      </Link>
+      <span class="nb-bar__brand">nocto<span>.</span>hub</span>
+      <div class="nb-bar__actions">
+        <button class="btn btn-ghost btn-sm" @click="save(false)" :disabled="saving">Черновик</button>
+        <button class="btn btn-primary btn-sm" @click="save(true)" :disabled="saving">Опубликовать</button>
       </div>
     </div>
-  </AppLayout>
+
+    <!-- Editor card -->
+    <div class="nb-doc">
+      <ArticleEditor
+        v-model:title="form.title"
+        v-model:excerpt="form.excerpt"
+        v-model:body="form.body"
+        v-model:tags="form.tags"
+        v-model:coverUrl="form.cover_url"
+        :errors="errors"
+      />
+
+      <!-- Meta row -->
+      <div class="nb-meta">
+        <div class="nb-meta__field">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+          <!-- FIXED: replaced old hardcoded <option> list with v-for over shared CATEGORIES composable -->
+          <select v-model="form.category" class="nb-meta__select">
+            <option value="" disabled>Категория</option>
+            <option v-for="cat in CATEGORIES" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
+          </select>
+          <span v-if="errors.category" class="nb-meta__err">!</span>
+        </div>
+        <div class="nb-meta__sep"></div>
+        <div class="nb-meta__field nb-meta__field--grow">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <input
+            v-model="form.cover_url"
+            type="url"
+            class="nb-meta__input"
+            placeholder="URL обложки (необязательно)..."
+          />
+        </div>
+      </div>
+    </div>
+
+  </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import RichEditor from '@/Components/RichEditor.vue'
-import TagInput from '@/Components/TagInput.vue'
+import ArticleEditor from '@/Components/ArticleEditor.vue'
+import { CATEGORIES } from '@/composables/useCategories' // FIXED: replaced old hardcoded categories with shared composable
 
 defineProps({ errors: { type: Object, default: () => ({}) } })
 
-const form = ref({ title: '', excerpt: '', body: '', category: '', cover_url: '', tags: [], publish: false })
+const form   = ref({ title: '', excerpt: '', body: '', category: '', cover_url: '', tags: [], publish: false })
+const saving = ref(false)
 
-function saveDraft()   { form.value.publish = false; router.post('/articles', form.value) }
-function savePublish() { form.value.publish = true;  router.post('/articles', form.value) }
+function save(publish) {
+  saving.value = true
+  form.value.publish = publish
+  router.post('/articles', form.value, { onFinish: () => { saving.value = false } })
+}
 </script>
+
+<style scoped>
+.nb-wrap {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.nb-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 52px;
+}
+
+.nb-bar__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.nb-bar__back:hover { color: var(--text); }
+
+.nb-bar__brand {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  margin-right: auto;
+}
+.nb-bar__brand span { color: var(--primary); }
+
+.nb-bar__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Document area */
+.nb-doc {
+  max-width: 800px;
+  width: 100%;
+  margin: 32px auto 60px;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Meta row */
+.nb-meta {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  height: 44px;
+}
+
+.nb-meta__field {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 16px;
+  color: var(--text-muted);
+  height: 100%;
+  flex-shrink: 0;
+}
+.nb-meta__field--grow { flex: 1; min-width: 0; }
+
+.nb-meta__sep {
+  width: 1px;
+  height: 60%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.nb-meta__select,
+.nb-meta__input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.83rem;
+  color: var(--text);
+  font-family: inherit;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
+}
+.nb-meta__select { max-width: 140px; cursor: pointer; }
+.nb-meta__input::placeholder { color: var(--text-muted); }
+
+.nb-meta__err { color: #dc3545; font-weight: 700; font-size: 0.8rem; }
+
+@media (max-width: 600px) {
+  .nb-bar { padding: 0 12px; }
+  .nb-bar__back-label { display: none; }
+  .nb-doc { margin: 16px auto 40px; }
+  .nb-meta { height: auto; flex-direction: column; align-items: stretch; }
+  .nb-meta__field { height: 40px; }
+  .nb-meta__sep { width: 100%; height: 1px; }
+  .nb-meta__select { max-width: 100%; }
+}
+</style>

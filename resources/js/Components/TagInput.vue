@@ -11,13 +11,13 @@
         v-model="current"
         type="text"
         class="tag-input__field"
-        :placeholder="modelValue.length === 0 ? 'Добавить теги...' : ''"
+        :placeholder="modelValue.length === 0 ? 'Теги...' : ''"
         @keydown.enter.prevent="add"
         @keydown="onKeydown"
         @blur="addIfNotEmpty"
       />
     </div>
-    <div class="tag-input__hint">Enter или пробел — добавить · Backspace — удалить · макс. 7</div>
+    <div v-if="!compact" class="tag-input__hint">Enter или пробел — добавить · Backspace — удалить · макс. 7</div>
   </div>
 </template>
 
@@ -26,6 +26,7 @@ import { ref } from 'vue'
 
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
+  compact:    { type: Boolean, default: false },
 })
 const emit = defineEmits(['update:modelValue'])
 

@@ -36,6 +36,14 @@ class ArticleController extends Controller
         $newStatus = $article->status === 'published' ? 'draft' : 'published';
         $article->update(['status' => $newStatus]);
         Cache::flush();
+        // $newStatus defined before update so AdminLogger can reference it below
+        $newStatus = $article->status === 'published' ? 'draft' : 'published';
+        $article->update(['status' => $newStatus]);
+        // Replaced Cache::flush() with targeted invalidation to avoid wiping ALL cache
+        Cache::forget('category_counts');
+        Cache::forget('articles_latest');
+
+        AdminLogger::log('toggle_article', "Статья «{$article->title}» → {$newStatus}", 'article', $article->id);
 
         AdminLogger::log('toggle_article', "Статья «{$article->title}» → {$newStatus}", 'article', $article->id);
 
@@ -46,7 +54,11 @@ class ArticleController extends Controller
     {
         $title = $article->title;
         $article->delete();
-        Cache::flush();
+        // Replaced Cache::flush() with targeted invalidation to avoid wiping ALL cache
+        Cache::forget('category_counts');
+        Cache::forget('articles_latest');
+
+        AdminLogger::log('delete_article', "Статья «{$title}» удалена", 'article', null);
 
         AdminLogger::log('delete_article', "Статья «{$title}» удалена", 'article', null);
 

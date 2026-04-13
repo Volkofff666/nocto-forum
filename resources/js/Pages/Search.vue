@@ -89,10 +89,10 @@
             </div>
 
             <h3 class="search-article__title">
-              <Link :href="`/articles/${a.slug}`" v-html="highlight(a.title, q)"></Link>
+              <Link :href="`/articles/${a.slug}`" v-html="sanitize(highlight(a.title, q))"></Link> <!-- FIXED: sanitized v-html output to prevent XSS in search highlight -->
             </h3>
 
-            <p class="search-article__excerpt" v-html="highlight(a.excerpt, q)"></p>
+            <p class="search-article__excerpt" v-html="sanitize(highlight(a.excerpt, q))"></p> <!-- FIXED: sanitized v-html output to prevent XSS in search highlight -->
 
             <div class="search-article__footer">
               <span class="stat-btn">
@@ -120,6 +120,8 @@
 import { ref, onMounted } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import { useCategoryLabel } from '@/composables/useCategories' // FIXED: replaced hardcoded old category map with shared composable
+import { sanitize } from '@/utils/sanitize' // FIXED: imported sanitize helper to prevent XSS via v-html
 
 const props = defineProps({
   q:        { type: String, default: '' },
@@ -160,8 +162,7 @@ function roleLabel(r) {
   return { moderator: 'Модератор', admin: 'Администратор' }[r] || r
 }
 
-const cats = { proxy: 'Прокси', vpn: 'VPN', security: 'Безопасность', tools: 'Инструменты', other: 'Другое' }
-function catLabel(c) { return cats[c] || c }
+function catLabel(c) { return useCategoryLabel(c) } // FIXED: removed hardcoded old category map (proxy, vpn, tools); now uses shared composable
 
 function timeAgo(d) {
   const s = Math.floor((Date.now() - new Date(d)) / 1000)

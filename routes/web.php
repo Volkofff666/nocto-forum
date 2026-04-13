@@ -31,11 +31,13 @@ Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->mid
 Route::patch('/articles/{article}/publish', [ArticleController::class, 'publish'])->middleware('auth')->name('articles.publish');
 
 // Комментарии
-Route::post('/articles/{article}/comments', [CommentController::class, 'store'])->middleware('auth')->name('comments.store');
+// Rate limiting added to prevent spam and DoS on interaction endpoints
+Route::post('/articles/{article}/comments', [CommentController::class, 'store'])->middleware(['auth', 'throttle:20,1'])->name('comments.store');
 Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->middleware('auth')->name('comments.destroy');
 
 // Голоса
-Route::post('/articles/{article}/vote', [VoteController::class, 'store'])->middleware('auth')->name('votes.store');
+// Rate limiting added to prevent spam and DoS on interaction endpoints
+Route::post('/articles/{article}/vote', [VoteController::class, 'store'])->middleware(['auth', 'throttle:30,1'])->name('votes.store');
 
 // Настройки профиля
 Route::get('/settings', [SettingsController::class, 'edit'])->middleware('auth')->name('settings.edit');
@@ -45,7 +47,8 @@ Route::patch('/settings', [SettingsController::class, 'update'])->middleware('au
 Route::get('/my/drafts', [ArticleController::class, 'drafts'])->middleware('auth')->name('articles.drafts');
 
 // Закладки
-Route::post('/articles/{article}/bookmark', [BookmarkController::class, 'toggle'])->middleware('auth')->name('bookmarks.toggle');
+// Rate limiting added to prevent spam and DoS on interaction endpoints
+Route::post('/articles/{article}/bookmark', [BookmarkController::class, 'toggle'])->middleware(['auth', 'throttle:60,1'])->name('bookmarks.toggle');
 Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('auth')->name('bookmarks.index');
 
 // Поиск

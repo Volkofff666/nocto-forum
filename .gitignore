@@ -19,3 +19,5 @@ nocto-hub-promt.md
 docker-compose.yml
 Dockerfile
 supervisord.conf
+/.claude
+CLAUDE.md
