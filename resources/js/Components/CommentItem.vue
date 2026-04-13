@@ -93,14 +93,10 @@ const props = defineProps({
 })
 
 const page = usePage()
-const showReply   = ref(false)
-const replyText   = ref('')
-const replyRef    = ref(null)
-const showReport  = ref(false)
 const showReply    = ref(false)
 const replyText    = ref('')
 const replyRef     = ref(null)
-const replyError   = ref(null)  // FIXED: tracks error state for failed reply deletions
+const replyError   = ref(null)
 const showReport   = ref(false)
 const reportReason = ref('')
 
@@ -116,7 +112,6 @@ function canDeleteComment(c) {
   return u && (u.id === c.user_id || ['moderator','admin'].includes(u.role))
 }
 
-function toggleReport() { showReport.value = !showReport.value; reportReason.value = '' }
 function toggleReport() {
   showReport.value = !showReport.value
   reportReason.value = ''
