@@ -27,6 +27,15 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           Комментарии
         </Link>
+        <Link href="/admin/reports" class="admin-nav__item" :class="{ active: isActive('/admin/reports') }">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Жалобы
+          <span v-if="pendingReports > 0" class="admin-nav__badge">{{ pendingReports }}</span>
+        </Link>
+        <Link href="/admin/logs" class="admin-nav__item" :class="{ active: isActive('/admin/logs') }">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Лог действий
+        </Link>
       </nav>
 
       <div class="admin-sidebar__footer">
@@ -66,6 +75,7 @@ defineProps({ title: { type: String, default: 'Админ-панель' } })
 
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
+const pendingReports = computed(() => page.props.pendingReports ?? 0)
 
 function isActive(path, exact = false) {
   return exact ? page.url === path : page.url.startsWith(path)

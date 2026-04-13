@@ -12,18 +12,44 @@
       <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
       {{ copied ? 'Скопировано!' : 'Копировать ссылку' }}
     </button>
+
+    <template v-if="isAuth && articleId">
+      <button v-if="!showReport" class="share-btn share-btn--report" @click="showReport = true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Пожаловаться
+      </button>
+      <div v-else class="report-inline">
+        <input v-model="reportReason" type="text" placeholder="Причина жалобы…" class="report-inline__input" />
+        <button class="share-btn share-btn--danger" :disabled="!reportReason.trim()" @click="sendReport">Отправить</button>
+        <button class="share-btn" @click="showReport = false; reportReason = ''">Отмена</button>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
-  title: String,
-  url:   String,
+  title:     String,
+  url:       String,
+  articleId: { type: Number, default: null },
 })
 
-const copied = ref(false)
+const page   = usePage()
+const isAuth = computed(() => !!page.props.auth?.user)
+
+const copied       = ref(false)
+const showReport   = ref(false)
+const reportReason = ref('')
+
+function sendReport() {
+  router.post(`/report/article/${props.articleId}`, { reason: reportReason.value }, {
+    preserveScroll: true,
+    onSuccess: () => { showReport.value = false; reportReason.value = '' },
+  })
+}
 
 const tgUrl = computed(() =>
   `https://t.me/share/url?url=${encodeURIComponent(props.url)}&text=${encodeURIComponent(props.title)}`

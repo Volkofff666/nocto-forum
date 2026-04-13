@@ -2,10 +2,13 @@
 
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ToolsController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\UserController as AdminUsers;
 use App\Http\Controllers\Admin\ArticleController as AdminArticles;
 use App\Http\Controllers\Admin\CommentController as AdminComments;
+use App\Http\Controllers\Admin\ReportController as AdminReports;
+use App\Http\Controllers\Admin\LogController as AdminLogs;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\SettingsController;
@@ -51,6 +54,9 @@ Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('a
 // Поиск
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
+// Жалобы
+Route::post('/report/{type}/{id}', [ReportController::class, 'store'])->middleware('auth')->name('report.store');
+
 // Инструменты
 Route::get('/tools', [ToolsController::class, 'index'])->name('tools');
 
@@ -67,7 +73,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Пользователи
     Route::get('/users',                    [AdminUsers::class, 'index'])->name('admin.users');
+    Route::get('/users/{user}',             [AdminUsers::class, 'show'])->name('admin.users.show');
     Route::patch('/users/{user}/role',      [AdminUsers::class, 'updateRole'])->middleware('admin:admin')->name('admin.users.role');
+    Route::post('/users/{user}/ban',        [AdminUsers::class, 'ban'])->middleware('admin:admin')->name('admin.users.ban');
+    Route::post('/users/{user}/unban',      [AdminUsers::class, 'unban'])->middleware('admin:admin')->name('admin.users.unban');
     Route::delete('/users/{user}',          [AdminUsers::class, 'destroy'])->middleware('admin:admin')->name('admin.users.destroy');
 
     // Статьи
@@ -78,6 +87,14 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Комментарии
     Route::get('/comments',              [AdminComments::class, 'index'])->name('admin.comments');
     Route::delete('/comments/{comment}', [AdminComments::class, 'destroy'])->name('admin.comments.destroy');
+
+    // Жалобы
+    Route::get('/reports',                    [AdminReports::class, 'index'])->name('admin.reports');
+    Route::post('/reports/{report}/resolve',  [AdminReports::class, 'resolve'])->name('admin.reports.resolve');
+    Route::post('/reports/{report}/dismiss',  [AdminReports::class, 'dismiss'])->name('admin.reports.dismiss');
+
+    // Лог действий
+    Route::get('/logs', [AdminLogs::class, 'index'])->name('admin.logs');
 });
 
 // Breeze auth routes

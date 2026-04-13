@@ -100,4 +100,9 @@ class Article extends Model
     {
         return $this->hasMany(Bookmark::class);
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

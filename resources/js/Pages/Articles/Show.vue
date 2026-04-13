@@ -61,7 +61,7 @@
           <!-- Share + Bookmark -->
           <div class="article-actions-bar">
             <BookmarkButton :articleId="article.id" :isBookmarked="isBookmarked" />
-            <ShareBar :title="article.title" :url="pageUrl" />
+            <ShareBar :title="article.title" :url="pageUrl" :article-id="article.id" />
           </div>
 
           <!-- Related -->
