@@ -1,13 +1,13 @@
 <template>
   <AppLayout>
     <div class="page-wrap">
-      <!-- Feed -->
-      <div>
+      <!-- Feed column -->
+      <div class="feed-col">
+        <!-- Filter bar -->
         <div class="content-card">
-          <!-- Tab bar -->
           <div class="tab-bar">
-            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }"   @click="setSort('latest')">Новое</button>
-            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }"  @click="setSort('popular')">Популярное</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }"    @click="setSort('latest')">Новое</button>
+            <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }"   @click="setSort('popular')">Популярное</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'discussed' }" @click="setSort('discussed')">Обсуждаемое</button>
           </div>
 
@@ -27,33 +27,35 @@
               @click="setCategory(c.value)"
             >{{ c.label }}</button>
           </div>
+        </div>
 
-          <!-- Articles -->
-          <div v-if="articles.data.length">
-            <ArticleCard
-              v-for="a in articles.data"
-              :key="a.id"
-              :article="a"
-              :isBookmarked="bookmarkedIds.includes(a.id)"
-            />
-          </div>
-          <div v-else class="empty">
+        <!-- Articles feed -->
+        <template v-if="articles.data.length">
+          <ArticleCard
+            v-for="a in articles.data"
+            :key="a.id"
+            :article="a"
+            :isBookmarked="bookmarkedIds.includes(a.id)"
+          />
+        </template>
+        <div v-else class="content-card">
+          <div class="empty">
             <div class="empty__icon">📭</div>
             <div class="empty__title">Статей пока нет</div>
             <div class="empty__text">Станьте первым — напишите что-нибудь интересное</div>
           </div>
+        </div>
 
-          <!-- Pagination -->
-          <div v-if="articles.last_page > 1" class="pagination">
-            <button
-              v-for="link in articles.links" :key="link.label"
-              class="page-btn"
-              :class="{ 'page-btn--active': link.active }"
-              :disabled="!link.url"
-              @click="link.url && router.get(link.url)"
-              v-html="link.label"
-            />
-          </div>
+        <!-- Pagination -->
+        <div v-if="articles.last_page > 1" class="pagination">
+          <button
+            v-for="link in articles.links" :key="link.label"
+            class="page-btn"
+            :class="{ 'page-btn--active': link.active }"
+            :disabled="!link.url"
+            @click="link.url && router.get(link.url)"
+            v-html="link.label"
+          />
         </div>
       </div>
 
@@ -99,14 +101,14 @@ import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
-import { CATEGORIES } from '@/composables/useCategories' // FIXED: replaced hardcoded old category list with shared composable
+import { CATEGORIES } from '@/composables/useCategories'
 
 const props = defineProps({
-  articles:      Object,
-  filters:       Object,
-  categoryCounts:Object,
-  bookmarkedIds: { type: Array,   default: () => [] },
-  tgSubscribers: { type: Number,  default: 0 },
+  articles:       Object,
+  filters:        Object,
+  categoryCounts: Object,
+  bookmarkedIds:  { type: Array,  default: () => [] },
+  tgSubscribers:  { type: Number, default: 0 },
 })
 
 function fmtCount(n) {
@@ -115,11 +117,11 @@ function fmtCount(n) {
   return n.toString()
 }
 
-const sort     = ref(props.filters?.sort || 'latest')
+const sort     = ref(props.filters?.sort     || 'latest')
 const category = ref(props.filters?.category || null)
-const tag      = ref(props.filters?.tag || null)
+const tag      = ref(props.filters?.tag      || null)
 
-const categories = CATEGORIES // FIXED: replaced local hardcoded array with imported shared composable
+const categories = CATEGORIES
 
 function setSort(s)     { sort.value = s; reload() }
 function setCategory(c) { category.value = c; reload() }

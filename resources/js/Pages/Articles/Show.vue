@@ -1,71 +1,116 @@
 <template>
   <AppLayout>
     <div class="page-wrap">
-      <div>
-        <div class="content-card article-page">
+      <div class="feed-col">
+      <div class="article-layout">
+
+        <!-- Sticky vertical vote bar -->
+        <aside class="article-vote-aside">
+          <div class="article-vote-sticky">
+            <VoteBar :article="article" :userVote="userVote" />
+          </div>
+        </aside>
+
+        <!-- Article card -->
+        <div class="article-main">
+        <article class="content-card article-page">
 
           <!-- Draft notice -->
           <div v-if="article.status === 'draft'" class="article-draft-bar">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
             Черновик — виден только вам.
             <button class="btn btn-primary btn-sm" style="margin-left:auto;" @click="publish">Опубликовать</button>
           </div>
 
-          <!-- Category + title -->
-          <div class="article-category">
-            <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
-          </div>
-          <h1 class="article-title">{{ article.title }}</h1>
+          <!-- Article header -->
+          <div class="article-page-header">
+            <!-- Meta row: category + read time + date -->
+            <div class="article-page-meta">
+              <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
+              <span class="article-page-meta__sep">·</span>
+              <span class="article-page-meta__item">{{ readTime }} мин. чтения</span>
+              <span class="article-page-meta__sep">·</span>
+              <span class="article-page-meta__item">{{ formatDate(article.created_at) }}</span>
+            </div>
 
-          <!-- Cover image (under title) -->
+            <!-- Title -->
+            <h1 class="article-title">{{ article.title }}</h1>
+
+            <!-- Byline -->
+            <div class="article-byline">
+              <div class="avatar avatar--40">
+                <img v-if="article.user.avatar_url" :src="article.user.avatar_url" :alt="article.user.name" />
+                <template v-else>{{ article.user.avatar }}</template>
+              </div>
+              <div class="article-byline__info">
+                <div class="article-byline__author">
+                  <Link :href="`/profile/${article.user.username}`">{{ article.user.name }}</Link>
+                </div>
+                <div class="article-byline__meta">@{{ article.user.username }}</div>
+              </div>
+              <div class="article-byline__actions">
+                <BookmarkButton :articleId="article.id" :isBookmarked="isBookmarked" />
+                <template v-if="canEdit">
+                  <Link :href="`/articles/${article.id}/edit`" class="btn btn-outline btn-sm">Редактировать</Link>
+                  <button class="btn btn-danger-ghost btn-sm" @click="destroy">Удалить</button>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cover image — full-bleed (edge-to-edge) -->
           <div v-if="article.cover_url" class="article-cover">
             <img :src="article.cover_url" :alt="article.title" @error="e => e.target.parentElement.style.display='none'" />
           </div>
 
-          <!-- Byline -->
-          <div class="article-byline">
-            <div class="avatar avatar--40">
-              <img v-if="article.user.avatar_url" :src="article.user.avatar_url" :alt="article.user.name" />
-              <template v-else>{{ article.user.avatar }}</template>
-            </div>
-            <div class="article-byline__info">
-              <div class="article-byline__author">
-                <Link :href="`/profile/${article.user.username}`">{{ article.user.name }}</Link>
-              </div>
-              <div class="article-byline__meta">{{ formatDate(article.created_at) }} · {{ readTime }} мин. чтения</div>
-            </div>
-            <div v-if="canEdit" class="article-byline__actions">
-              <Link :href="`/articles/${article.id}/edit`" class="btn btn-outline btn-sm">Редактировать</Link>
-              <button class="btn btn-danger-ghost btn-sm" @click="destroy">Удалить</button>
-            </div>
-          </div>
-
           <!-- Body -->
-          <div v-if="isHtmlBody" class="article-body article-body--rich" v-html="sanitize(article.body)"></div> <!-- FIXED: sanitized v-html output to prevent XSS in article body -->
-          <div v-else class="article-body">
-            <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
+          <div class="article-page-body">
+            <div v-if="isHtmlBody" class="article-body article-body--rich" v-html="sanitize(article.body)"></div>
+            <div v-else class="article-body">
+              <p v-for="(p, i) in paragraphs" :key="i">{{ p }}</p>
+            </div>
+
+            <!-- Tags -->
+            <div v-if="article.tags && article.tags.length" class="article-tags">
+              <a
+                v-for="tag in article.tags" :key="tag"
+                :href="`/?tag=${encodeURIComponent(tag)}`"
+                class="article-tag article-tag--lg"
+              >#{{ tag }}</a>
+            </div>
           </div>
 
-          <!-- Tags -->
-          <div v-if="article.tags && article.tags.length" class="article-tags">
-            <a
-              v-for="tag in article.tags" :key="tag"
-              :href="`/?tag=${encodeURIComponent(tag)}`"
-              class="article-tag article-tag--lg"
-            >#{{ tag }}</a>
+          <!-- Action bar: share + stats -->
+          <div class="article-page-bottom">
+            <div class="article-actions-bar">
+              <ShareBar :title="article.title" :url="pageUrl" :article-id="article.id" />
+              <span class="article-actions-bar__spacer"></span>
+              <span class="article-actions-bar__views">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                {{ article.views_count }}
+              </span>
+              <Link :href="`/articles/${article.slug}#comments`" class="article-actions-bar__comments">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                {{ totalComments }}
+              </Link>
+            </div>
+            <!-- Mobile-only horizontal vote row -->
+            <div class="article-vote-mobile">
+              <VoteBar :article="article" :userVote="userVote" />
+            </div>
           </div>
 
-          <!-- Vote bar -->
-          <VoteBar :article="article" :userVote="userVote" />
-
-          <!-- Share + Bookmark -->
-          <div class="article-actions-bar">
-            <BookmarkButton :articleId="article.id" :isBookmarked="isBookmarked" />
-            <ShareBar :title="article.title" :url="pageUrl" :article-id="article.id" />
-          </div>
-
-          <!-- Related -->
-          <div v-if="related.length" class="related">
+          <!-- Related articles -->
+          <div v-if="related.length" class="related article-page-related">
             <div class="related__title">Читайте также</div>
             <div class="related__list">
               <div v-for="r in related" :key="r.id" class="related-item">
@@ -84,7 +129,7 @@
           </div>
 
           <!-- Comments -->
-          <div class="comments" id="comments">
+          <div class="comments article-page-comments" id="comments">
             <div class="comments__header">
               <div class="comments__title">
                 Комментарии
@@ -115,7 +160,6 @@
               <Link href="/login">Войдите</Link>, чтобы оставить комментарий
             </div>
 
-            <!-- List -->
             <div v-if="article.comments.length">
               <CommentItem
                 v-for="c in article.comments"
@@ -128,8 +172,11 @@
               <div class="empty__text">Комментариев пока нет — будьте первым!</div>
             </div>
           </div>
-        </div>
-      </div>
+
+        </article>
+        </div><!-- /article-main -->
+      </div><!-- /article-layout -->
+      </div><!-- /feed-col -->
 
       <!-- Sidebar -->
       <aside class="sidebar sidebar-sticky">
@@ -175,8 +222,8 @@ import VoteBar from '@/Components/VoteBar.vue'
 import ShareBar from '@/Components/ShareBar.vue'
 import BookmarkButton from '@/Components/BookmarkButton.vue'
 import CommentItem from '@/Components/CommentItem.vue'
-import { useCategoryLabel } from '@/composables/useCategories' // FIXED: replaced local cats map with shared composable
-import { sanitize } from '@/utils/sanitize' // FIXED: imported sanitize helper to prevent XSS via v-html
+import { useCategoryLabel } from '@/composables/useCategories'
+import { sanitize } from '@/utils/sanitize'
 
 const props = defineProps({
   article:      Object,
@@ -211,7 +258,7 @@ const totalComments = computed(() =>
   props.article.comments.reduce((sum, c) => sum + 1 + (c.replies?.length ?? 0), 0)
 )
 
-function catLabel(c) { return useCategoryLabel(c) } // FIXED: removed local cats map; delegates to shared composable
+function catLabel(c) { return useCategoryLabel(c) }
 
 function formatDate(d) {
   return new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })

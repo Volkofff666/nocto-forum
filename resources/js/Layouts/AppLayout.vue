@@ -12,6 +12,24 @@
             <Link href="/tools" class="header__nav-link" :class="{ active: isTools }">Инструменты</Link>
           </nav>
 
+          <!-- Theme toggle -->
+          <button class="theme-toggle" @click="toggleTheme" :title="isDark ? 'Светлая тема' : 'Тёмная тема'">
+            <svg v-if="isDark" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/>
+              <line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/>
+              <line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
           <!-- Search -->
           <div class="header-search" :class="{ 'header-search--open': searchOpen }">
             <button v-if="!searchOpen" class="header-search__icon" @click="openSearch" title="Поиск">
@@ -142,6 +160,18 @@ const user = computed(() => page.props.auth?.user)
 const menuOpen   = ref(false)
 const mobileOpen = ref(false)
 
+// Theme
+const isDark = ref(false)
+function applyTheme(dark) {
+  isDark.value = dark
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+}
+function toggleTheme() {
+  const next = !isDark.value
+  applyTheme(next)
+  try { localStorage.setItem('theme', next ? 'dark' : 'light') } catch {}
+}
+
 // Search
 const searchOpen = ref(false)
 const searchQ    = ref('')
@@ -175,7 +205,20 @@ function logout() {
 const showTop = ref(false)
 function onScroll() { showTop.value = window.scrollY > 400 }
 function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
-onMounted(() => window.addEventListener('scroll', onScroll))
+onMounted(() => {
+  window.addEventListener('scroll', onScroll)
+  // Restore saved theme (or detect system preference)
+  try {
+    const saved = localStorage.getItem('theme')
+    if (saved) {
+      applyTheme(saved === 'dark')
+    } else {
+      applyTheme(window.matchMedia('(prefers-color-scheme: dark)').matches)
+    }
+  } catch {
+    applyTheme(false)
+  }
+})
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 
 // Click outside directive

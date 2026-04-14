@@ -96,7 +96,7 @@ const page = usePage()
 const showReply    = ref(false)
 const replyText    = ref('')
 const replyRef     = ref(null)
-const replyError   = ref(null)  // FIXED: tracks error state for failed reply deletions
+const replyError   = ref(null)
 const showReport   = ref(false)
 const reportReason = ref('')
 
