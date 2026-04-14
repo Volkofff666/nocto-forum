@@ -139,7 +139,6 @@ function formatViews(n) {
 .profile-cover {
   height: 200px;
   background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg-secondary) 100%);
-  position: relative;
   overflow: hidden;
   margin-left: -16px;
   margin-right: -16px;
