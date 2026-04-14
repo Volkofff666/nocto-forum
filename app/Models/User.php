@@ -17,6 +17,7 @@ class User extends Authenticatable
         'password',
         'bio',
         'avatar_url',
+        'cover_url',
         'telegram_id',
         'role',
         'banned_at',
