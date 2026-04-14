@@ -32,7 +32,7 @@ RUN npm install && npm run build && rm -rf node_modules
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-#COPY docker/Caddyfile       /etc/caddy/Caddyfile
+COPY docker/Caddyfile       /etc/caddy/Caddyfile
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh   /entrypoint.sh
 RUN chmod +x /entrypoint.sh
