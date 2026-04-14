@@ -1,67 +1,98 @@
 <template>
-  <div class="nb-wrap">
+  <div class="editor-shell">
 
     <!-- Top bar -->
-    <div class="nb-bar">
-      <Link href="/" class="nb-bar__back">
+    <div class="editor-bar">
+      <Link href="/" class="editor-bar__back">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        <span class="nb-bar__back-label">Назад</span>
+        <span class="editor-bar__back-label">На главную</span>
       </Link>
-      <span class="nb-bar__brand">nocto<span>.</span>hub</span>
-      <div class="nb-bar__actions">
-        <button class="btn btn-ghost btn-sm" @click="save(false)" :disabled="saving">Черновик</button>
-        <button class="btn btn-primary btn-sm" @click="save(true)" :disabled="saving">Опубликовать</button>
+      <span class="editor-bar__brand">nocto<span>.</span>hub</span>
+      <div class="editor-bar__actions">
+        <button class="btn btn-ghost btn-sm" @click="save(false)" :disabled="saving">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Черновик
+        </button>
+        <button class="btn btn-primary btn-sm" @click="save(true)" :disabled="saving || !canPublish">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Опубликовать
+        </button>
       </div>
     </div>
 
-    <!-- Editor card -->
-    <div class="nb-doc">
-      <ArticleEditor
-        v-model:title="form.title"
-        v-model:excerpt="form.excerpt"
-        v-model:body="form.body"
-        v-model:tags="form.tags"
-        v-model:coverUrl="form.cover_url"
-        :errors="errors"
-      />
+    <!-- Body: editor + sidebar -->
+    <div class="editor-body">
 
-      <!-- Meta row -->
-      <div class="nb-meta">
-        <div class="nb-meta__field">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
-          <!-- FIXED: replaced old hardcoded <option> list with v-for over shared CATEGORIES composable -->
-          <select v-model="form.category" class="nb-meta__select">
-            <option value="" disabled>Категория</option>
-            <option v-for="cat in CATEGORIES" :key="cat.value" :value="cat.value">{{ cat.label }}</option>
-          </select>
-          <span v-if="errors.category" class="nb-meta__err">!</span>
+      <!-- Main editor area -->
+      <div class="editor-main">
+        <ArticleEditor
+          v-model:title="form.title"
+          v-model:excerpt="form.excerpt"
+          v-model:body="form.body"
+          v-model:tags="form.tags"
+          v-model:coverUrl="form.cover_url"
+          :errors="errors"
+        />
+      </div>
+
+      <!-- Settings sidebar -->
+      <aside class="editor-side">
+
+        <!-- Category -->
+        <div class="editor-side__block">
+          <div class="editor-side__title">Категория</div>
+          <div class="editor-cats">
+            <button
+              v-for="cat in CATEGORIES" :key="cat.value"
+              class="editor-cat"
+              :class="{ active: form.category === cat.value }"
+              @click="form.category = cat.value"
+            >{{ cat.label }}</button>
+          </div>
+          <div v-if="errors.category" class="editor-side__err">Выберите категорию</div>
         </div>
-        <div class="nb-meta__sep"></div>
-        <div class="nb-meta__field nb-meta__field--grow">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+
+        <!-- Cover URL -->
+        <div class="editor-side__block">
+          <div class="editor-side__title">Обложка</div>
           <input
             v-model="form.cover_url"
             type="url"
-            class="nb-meta__input"
-            placeholder="URL обложки (необязательно)..."
+            class="editor-side__input"
+            placeholder="https://example.com/cover.jpg"
           />
+          <div v-if="form.cover_url" class="editor-cover-preview">
+            <img :src="form.cover_url" alt="preview" @error="e => e.target.style.display='none'" />
+          </div>
         </div>
-      </div>
-    </div>
 
+        <!-- Tips -->
+        <div class="editor-side__block editor-side__tips">
+          <div class="editor-side__title">Подсказки</div>
+          <ul class="editor-tips-list">
+            <li>Заголовок до 100 символов</li>
+            <li>Анонс — 1–2 предложения</li>
+            <li>Минимум 200 символов в тексте</li>
+          </ul>
+        </div>
+
+      </aside>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import ArticleEditor from '@/Components/ArticleEditor.vue'
-import { CATEGORIES } from '@/composables/useCategories' // FIXED: replaced old hardcoded categories with shared composable
+import { CATEGORIES } from '@/composables/useCategories'
 
 defineProps({ errors: { type: Object, default: () => ({}) } })
 
 const form   = ref({ title: '', excerpt: '', body: '', category: '', cover_url: '', tags: [], publish: false })
 const saving = ref(false)
+
+const canPublish = computed(() => form.value.title.trim() && form.value.category)
 
 function save(publish) {
   saving.value = true
@@ -71,117 +102,174 @@ function save(publish) {
 </script>
 
 <style scoped>
-.nb-wrap {
+.editor-shell {
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
 }
 
 /* Top bar */
-.nb-bar {
+.editor-bar {
   position: sticky;
   top: 0;
-  z-index: 50;
-  background: var(--surface);
+  z-index: 100;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 0 20px;
   height: 52px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
 }
 
-.nb-bar__back {
+.editor-bar__back {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.875rem;
+  font-size: 13px;
   color: var(--text-muted);
   text-decoration: none;
   flex-shrink: 0;
+  transition: color 0.12s;
 }
-.nb-bar__back:hover { color: var(--text); }
+.editor-bar__back:hover { color: var(--text); }
+.editor-bar__back-label { display: none; }
+@media (min-width: 600px) { .editor-bar__back-label { display: inline; } }
 
-.nb-bar__brand {
-  font-size: 1rem;
-  font-weight: 700;
+.editor-bar__brand {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   color: var(--text);
-  letter-spacing: -0.02em;
   margin-right: auto;
 }
-.nb-bar__brand span { color: var(--primary); }
+.editor-bar__brand span { color: var(--accent); }
 
-.nb-bar__actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
+.editor-bar__actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+/* Body layout */
+.editor-body {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  max-width: 1100px;
+  width: 100%;
+  margin: 24px auto;
+  padding: 0 16px 60px;
+  align-items: start;
 }
 
-/* Document area */
-.nb-doc {
-  max-width: 800px;
-  width: 100%;
-  margin: 32px auto 60px;
-  padding: 0 16px;
+@media (max-width: 860px) {
+  .editor-body { grid-template-columns: 1fr; }
+  .editor-side { order: -1; }
+}
+
+/* Main area */
+.editor-main { min-width: 0; }
+
+/* Settings sidebar */
+.editor-side {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: sticky;
+  top: 68px;
 }
 
-/* Meta row */
-.nb-meta {
-  display: flex;
-  align-items: center;
-  background: var(--surface);
+.editor-side__block {
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  height: 44px;
+  border-radius: var(--radius-lg);
+  padding: 16px;
 }
 
-.nb-meta__field {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 0 16px;
+.editor-side__title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
   color: var(--text-muted);
-  height: 100%;
-  flex-shrink: 0;
-}
-.nb-meta__field--grow { flex: 1; min-width: 0; }
-
-.nb-meta__sep {
-  width: 1px;
-  height: 60%;
-  background: var(--border);
-  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
-.nb-meta__select,
-.nb-meta__input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 0.83rem;
+.editor-side__err {
+  font-size: 12px;
+  color: #dc3545;
+  margin-top: 8px;
+}
+
+.editor-side__input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--bg-secondary);
   color: var(--text);
   font-family: inherit;
-  padding: 0;
-  min-width: 0;
-  width: 100%;
 }
-.nb-meta__select { max-width: 140px; cursor: pointer; }
-.nb-meta__input::placeholder { color: var(--text-muted); }
+.editor-side__input:focus { outline: none; border-color: var(--accent); }
+.editor-side__input::placeholder { color: var(--text-muted); font-size: 12px; }
 
-.nb-meta__err { color: #dc3545; font-weight: 700; font-size: 0.8rem; }
+/* Category chips */
+.editor-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 
-@media (max-width: 600px) {
-  .nb-bar { padding: 0 12px; }
-  .nb-bar__back-label { display: none; }
-  .nb-doc { margin: 16px auto 40px; }
-  .nb-meta { height: auto; flex-direction: column; align-items: stretch; }
-  .nb-meta__field { height: 40px; }
-  .nb-meta__sep { width: 100%; height: 1px; }
-  .nb-meta__select { max-width: 100%; }
+.editor-cat {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: inherit;
+}
+.editor-cat:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.editor-cat.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); font-weight: 700; }
+
+/* Cover preview */
+.editor-cover-preview {
+  margin-top: 10px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  max-height: 120px;
+}
+.editor-cover-preview img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Tips */
+.editor-side__tips { background: var(--accent-light); border-color: rgba(0,123,255,0.15); }
+.editor-side__tips .editor-side__title { color: var(--accent); }
+.editor-tips-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.editor-tips-list li {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 14px;
+  position: relative;
+}
+.editor-tips-list li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-weight: 700;
 }
 </style>

@@ -1,124 +1,100 @@
 <template>
   <AppLayout>
-    <div class="page-wrap" style="padding-top:20px;">
 
-      <!-- Основная колонка: статьи -->
-      <div>
-        <!-- Шапка с именем (мобильная) -->
-        <div class="profile-mobile-hero content-card" style="display:none;">
-          <div class="profile-hero">
-            <div class="avatar avatar--64">
-              <img v-if="profileUser.avatar_url" :src="profileUser.avatar_url" :alt="profileUser.name" />
-              <template v-else>{{ profileUser.avatar }}</template>
-            </div>
-            <div class="profile-hero__info">
-              <div class="profile-hero__name">{{ profileUser.name }}</div>
-              <div class="profile-hero__username">@{{ profileUser.username }}</div>
-            </div>
+    <!-- Cover -->
+    <div class="profile-cover" :class="{ 'profile-cover--img': profileUser.cover_url }">
+      <div
+        v-if="profileUser.cover_url"
+        class="profile-cover__bg"
+        :style="`background-image:url('${profileUser.cover_url}')`"
+      ></div>
+    </div>
+
+    <!-- Header -->
+    <div class="profile-header">
+
+      <!-- Top row: avatar + action buttons -->
+      <div class="profile-header__top-row">
+        <div class="profile-avatar">
+          <div class="avatar avatar--80" style="border:4px solid var(--bg);box-shadow:0 2px 16px rgba(0,0,0,0.18);">
+            <img v-if="profileUser.avatar_url" :src="profileUser.avatar_url" :alt="profileUser.name" />
+            <template v-else>{{ profileUser.avatar }}</template>
           </div>
         </div>
-
-        <!-- Таб-бар статей -->
-        <div class="content-card">
-          <div class="tab-bar">
-            <button class="tab-btn tab-btn--active">
-              Публикации
-              <span v-if="articles.total" style="margin-left:5px;font-size:12px;color:var(--text-muted);font-weight:400;">{{ articles.total }}</span>
-            </button>
-          </div>
-
-          <div v-if="articles.data.length">
-            <ArticleCard v-for="a in articles.data" :key="a.id" :article="a" />
-          </div>
-          <div v-else class="empty">
-            <div class="empty__icon">📝</div>
-            <div class="empty__title">Публикаций пока нет</div>
-            <div v-if="isOwnProfile" class="empty__text">
-              Напишите первую статью — она появится здесь
-            </div>
-            <div v-else class="empty__text">
-              {{ profileUser.name }} ещё ничего не опубликовал
-            </div>
-            <div v-if="isOwnProfile" style="margin-top:16px;">
-              <Link href="/articles/create" class="btn btn-primary">Написать статью</Link>
-            </div>
-          </div>
-
-          <div v-if="articles.last_page > 1" class="pagination">
-            <button
-              v-for="link in articles.links" :key="link.label"
-              class="page-btn"
-              :class="{ 'page-btn--active': link.active }"
-              :disabled="!link.url"
-              @click="link.url && router.get(link.url)"
-              v-html="link.label"
-            />
-          </div>
+        <div v-if="isOwnProfile" class="profile-header__actions">
+          <Link href="/articles/create" class="btn btn-primary btn-sm">Написать статью</Link>
+          <Link href="/settings" class="btn btn-edit btn-sm">Редактировать профиль</Link>
         </div>
       </div>
 
-      <!-- Сайдбар: карточка пользователя -->
-      <aside class="sidebar sidebar-sticky">
-        <div class="sidebar-card">
-          <!-- Аватар + имя -->
-          <div style="text-align:center;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:16px;">
-            <div class="avatar avatar--80" style="margin:0 auto 12px;">
-              <img v-if="profileUser.avatar_url" :src="profileUser.avatar_url" :alt="profileUser.name" />
-              <template v-else>{{ profileUser.avatar }}</template>
-            </div>
-            <div style="font-size:17px;font-weight:700;margin-bottom:3px;">{{ profileUser.name }}</div>
-            <div style="font-size:13px;color:var(--text-muted);">@{{ profileUser.username }}</div>
-            <div v-if="profileUser.role !== 'user'" style="margin-top:6px;">
-              <span class="role-badge" :class="`role-badge--${profileUser.role}`">
-                {{ roleLabel(profileUser.role) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Bio -->
-          <div v-if="profileUser.bio" style="font-size:14px;color:var(--text-muted);line-height:1.55;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
-            {{ profileUser.bio }}
-          </div>
-
-          <!-- Статистика -->
-          <div class="profile-stats-grid">
-            <div class="profile-stat-item">
-              <div class="profile-stat-item__val">{{ articles.total }}</div>
-              <div class="profile-stat-item__label">статей</div>
-            </div>
-            <div class="profile-stat-item">
-              <div class="profile-stat-item__val">{{ formatVotes(totalVotes) }}</div>
-              <div class="profile-stat-item__label">голосов</div>
-            </div>
-            <div class="profile-stat-item">
-              <div class="profile-stat-item__val">{{ totalComments }}</div>
-              <div class="profile-stat-item__label">комментариев</div>
-            </div>
-            <div class="profile-stat-item">
-              <div class="profile-stat-item__val">{{ formatViews(totalViews) }}</div>
-              <div class="profile-stat-item__label">просмотров</div>
-            </div>
-          </div>
-
-          <!-- Кнопки действий -->
-          <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-            <template v-if="isOwnProfile">
-              <Link href="/settings" class="btn btn-outline" style="width:100%;justify-content:center;">
-                Редактировать профиль
-              </Link>
-              <Link href="/articles/create" class="btn btn-primary" style="width:100%;justify-content:center;">
-                Написать статью
-              </Link>
-            </template>
-          </div>
+      <!-- Info block -->
+      <div class="profile-info">
+        <div class="profile-info__name-row">
+          <h1 class="profile-info__name">{{ profileUser.name }}</h1>
+          <span
+            v-if="profileUser.role !== 'user'"
+            class="profile-role-badge"
+            :class="`profile-role-badge--${profileUser.role}`"
+          >{{ roleLabel(profileUser.role) }}</span>
         </div>
 
-        <!-- Дата регистрации -->
-        <div class="sidebar-card" style="text-align:center;font-size:13px;color:var(--text-muted);">
-          На платформе с {{ joinDate }}
+        <div class="profile-info__username">@{{ profileUser.username }}</div>
+        <div class="profile-info__joined">На сайте с {{ joinDate }}</div>
+        <div v-if="profileUser.bio" class="profile-info__bio">{{ profileUser.bio }}</div>
+
+        <div class="profile-info__stats">
+          <span class="profile-stat">
+            <strong>{{ articles.total }}</strong> статей
+          </span>
+          <span class="profile-stat__dot">·</span>
+          <span class="profile-stat" :class="{ 'stat--pos': totalVotes > 0, 'stat--neg': totalVotes < 0 }">
+            <strong>{{ totalVotes > 0 ? '+' : '' }}{{ totalVotes }}</strong> голосов
+          </span>
+          <span class="profile-stat__dot">·</span>
+          <span class="profile-stat">
+            <strong>{{ formatViews(totalViews) }}</strong> просмотров
+          </span>
+          <span class="profile-stat__dot">·</span>
+          <span class="profile-stat">
+            <strong>{{ totalComments }}</strong> комментариев
+          </span>
         </div>
-      </aside>
+      </div>
+
     </div>
+
+    <!-- Articles -->
+    <div class="profile-content">
+      <div v-if="articles.data.length" class="profile-articles">
+        <ArticleCard v-for="a in articles.data" :key="a.id" :article="a" />
+
+        <div v-if="articles.last_page > 1" class="pagination" style="padding:8px 0 0;">
+          <button
+            v-for="link in articles.links" :key="link.label"
+            class="page-btn"
+            :class="{ 'page-btn--active': link.active }"
+            :disabled="!link.url"
+            @click="link.url && router.get(link.url)"
+            v-html="link.label"
+          />
+        </div>
+      </div>
+
+      <div v-else class="profile-empty">
+        <div class="profile-empty__icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <div class="profile-empty__title">Публикаций пока нет</div>
+        <div class="profile-empty__text">
+          {{ isOwnProfile ? 'Напишите первую статью — она появится здесь' : `${profileUser.name} ещё ничего не опубликовал` }}
+        </div>
+        <Link v-if="isOwnProfile" href="/articles/create" class="btn btn-primary" style="margin-top:16px;">Написать статью</Link>
+      </div>
+    </div>
+
   </AppLayout>
 </template>
 
@@ -152,10 +128,6 @@ function roleLabel(role) {
   return { moderator: 'Модератор', admin: 'Администратор' }[role] || role
 }
 
-function formatVotes(n) {
-  return n > 0 ? `+${n}` : `${n}`
-}
-
 function formatViews(n) {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}K`
   return `${n}`
@@ -163,45 +135,170 @@ function formatViews(n) {
 </script>
 
 <style scoped>
-.profile-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+/* ── Cover ──────────────────────────────────── */
+.profile-cover {
+  height: 200px;
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg-secondary) 100%);
+  position: relative;
   overflow: hidden;
+  margin-left: -16px;
+  margin-right: -16px;
 }
 
-.profile-stat-item {
+.profile-cover--img { background: var(--bg-secondary); }
+
+.profile-cover__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* ── Header ─────────────────────────────────── */
+.profile-header {
   background: var(--bg);
-  padding: 12px;
-  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-left: -16px;
+  margin-right: -16px;
+  padding: 0 16px 20px;
 }
 
-.profile-stat-item__val {
-  font-size: 18px;
-  font-weight: 700;
+/* Top row: avatar + buttons */
+.profile-header__top-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 40px; /* кнопки выравниваются по нижнему краю аватара */
+  margin-bottom: 12px;
+}
+
+.profile-avatar {
+  margin-top: -40px; /* аватар перекрывает обложку */
+}
+
+.profile-header__actions {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 2px;
+}
+
+/* ── Info ───────────────────────────────────── */
+.profile-info__name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.profile-info__name {
+  font-size: 20px;
+  font-weight: 800;
   letter-spacing: -0.5px;
+  color: var(--text);
+  line-height: 1.2;
 }
 
-.profile-stat-item__label {
-  font-size: 11px;
+.profile-info__username {
+  font-size: 14px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-bottom: 2px;
 }
 
-.role-badge {
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: 20px;
+.profile-info__joined {
   font-size: 12px;
-  font-weight: 500;
+  color: var(--text-muted);
+  opacity: 0.75;
+  margin-bottom: 6px;
 }
-.role-badge--admin     { background: #fff3cd; color: #856404; }
-.role-badge--moderator { background: #cce5ff; color: #004085; }
 
-@media (max-width: 800px) {
-  .profile-mobile-hero { display: block !important; margin-bottom: 12px; }
+.profile-info__bio {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 10px;
+  max-width: 520px;
+}
+
+/* ── Stats ──────────────────────────────────── */
+.profile-info__stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.profile-stat {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.profile-stat strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.profile-stat__dot {
+  color: var(--border-strong);
+  opacity: 0.5;
+}
+
+.stat--pos strong { color: #16a34a; }
+.stat--neg strong { color: #dc2626; }
+
+/* ── Edit button ────────────────────────────── */
+.btn-edit {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border: 1px solid var(--text-muted);
+}
+.btn-edit:hover { background: var(--bg-hover); }
+
+/* ── Role badges ────────────────────────────── */
+.profile-role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.profile-role-badge--admin     { background: #fef3c7; color: #92400e; }
+.profile-role-badge--moderator { background: #dbeafe; color: #1e40af; }
+
+/* ── Content ────────────────────────────────── */
+.profile-content {
+  padding: 20px 0 48px;
+}
+
+.profile-articles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Empty ──────────────────────────────────── */
+.profile-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile-empty__icon  { margin-bottom: 16px; color: var(--text-muted); }
+.profile-empty__title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.profile-empty__text  { font-size: 14px; color: var(--text-muted); }
+
+/* ── Mobile ─────────────────────────────────── */
+@media (max-width: 600px) {
+  .profile-cover { height: 130px; }
+  .profile-avatar { margin-top: -32px; }
+  .profile-header__top-row { flex-wrap: wrap; gap: 10px; }
+  .profile-header__actions { width: 100%; justify-content: flex-end; }
+  .profile-info__name { font-size: 18px; }
+  .profile-info__stats { gap: 6px; }
 }
 </style>

@@ -24,6 +24,7 @@ class SettingsController extends Controller
             'username'   => 'required|string|max:32|regex:/^[a-zA-Z0-9_]+$/|unique:users,username,' . $user->id,
             'bio'        => 'nullable|string|max:500',
             'avatar_url' => 'nullable|url|max:500',
+            'cover_url'  => 'nullable|url|max:500',
         ]);
 
         $user->update($validated);

@@ -7,30 +7,52 @@
         </div>
 
         <div style="padding:24px;">
-          <!-- Avatar preview -->
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
-            <div class="avatar avatar--80">
-              <img v-if="form.avatar_url" :src="form.avatar_url" :alt="form.name" @error="imgError = true" />
-              <template v-if="!form.avatar_url || imgError">{{ initials }}</template>
-            </div>
-            <div style="flex:1;">
-              <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Фото профиля</div>
-              <div class="form-group" style="margin-bottom:0;">
+          <form @submit.prevent="submit">
+            <!-- Cover preview -->
+            <div style="margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+              <div class="settings-cover-preview" :style="form.cover_url ? `background-image:url('${form.cover_url}')` : ''">
+                <div class="settings-cover-preview__empty" v-if="!form.cover_url || coverError">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Фон профиля</span>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+                <label class="form-label">Фон профиля</label>
                 <input
-                  v-model="form.avatar_url"
+                  v-model="form.cover_url"
                   type="url"
                   class="form-input"
-                  :class="{ 'form-input--error': errors.avatar_url }"
-                  placeholder="https://example.com/photo.jpg"
-                  @input="imgError = false"
+                  :class="{ 'form-input--error': errors.cover_url }"
+                  placeholder="https://example.com/background.jpg"
+                  @input="coverError = false"
                 />
-                <div v-if="errors.avatar_url" class="form-error">{{ errors.avatar_url }}</div>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Вставьте URL изображения</div>
+                <div v-if="errors.cover_url" class="form-error">{{ errors.cover_url }}</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Вставьте URL картинки — она будет показана как шапка профиля</div>
               </div>
             </div>
-          </div>
 
-          <form @submit.prevent="submit">
+            <!-- Avatar preview -->
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+              <div class="avatar avatar--80">
+                <img v-if="form.avatar_url" :src="form.avatar_url" :alt="form.name" @error="imgError = true" />
+                <template v-if="!form.avatar_url || imgError">{{ initials }}</template>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;margin-bottom:6px;">Фото профиля</div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <input
+                    v-model="form.avatar_url"
+                    type="url"
+                    class="form-input"
+                    :class="{ 'form-input--error': errors.avatar_url }"
+                    placeholder="https://example.com/photo.jpg"
+                    @input="imgError = false"
+                  />
+                  <div v-if="errors.avatar_url" class="form-error">{{ errors.avatar_url }}</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Вставьте URL изображения</div>
+                </div>
+              </div>
+            </div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
               <div class="form-group">
                 <label class="form-label">Имя</label>
@@ -99,10 +121,12 @@ const form = ref({
   username:   props.user.username,
   bio:        props.user.bio || '',
   avatar_url: props.user.avatar_url || '',
+  cover_url:  props.user.cover_url || '',
 })
 
-const saving = ref(false)
-const imgError = ref(false)
+const saving    = ref(false)
+const imgError  = ref(false)
+const coverError = ref(false)
 
 const initials = computed(() => {
   const words = (form.value.name || '').trim().split(' ')
@@ -116,3 +140,28 @@ function submit() {
   })
 }
 </script>
+
+<style scoped>
+.settings-cover-preview {
+  width: 100%;
+  height: 140px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background-color: var(--bg-secondary);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.settings-cover-preview__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+</style>
