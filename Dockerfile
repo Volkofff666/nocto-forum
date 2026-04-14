@@ -1,7 +1,7 @@
 FROM php:8.3-fpm-alpine
 
 # Copy Caddy binary from official image — no download needed
-#COPY --from=caddy:2-alpine /usr/bin/caddy /usr/local/bin/caddy
+COPY --from=caddy:2-alpine /usr/bin/caddy /usr/local/bin/caddy
 
 RUN apk add --no-cache \
     nodejs \
@@ -37,7 +37,6 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh   /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 80 
-#443
+EXPOSE 80 443
 
 ENTRYPOINT ["/entrypoint.sh"]

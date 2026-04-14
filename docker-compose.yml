@@ -8,12 +8,12 @@ services:
       REDIS_HOST: redis
     ports:
       - "8080:8080"   # dev: php artisan serve (Caddy temporarily disabled)
-      # - "80:80"
-      # - "443:443"
-      # - "443:443/udp"  # HTTP/3 (QUIC)
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3 (QUIC)
     volumes:
       - storage_data:/var/www/storage
-#      - caddy_data:/caddy  # SSL certs + Caddy state
+      - caddy_data:/caddy  # SSL certs + Caddy state
     depends_on:
       postgres:
         condition: service_healthy
@@ -45,4 +45,4 @@ volumes:
   pgdata:
   redisdata:
   storage_data:
-#  caddy_data:
+  caddy_data:
