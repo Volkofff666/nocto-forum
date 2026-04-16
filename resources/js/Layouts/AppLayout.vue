@@ -54,6 +54,14 @@
             <template v-if="user">
               <Link href="/articles/create" class="btn btn-primary btn-sm">Написать</Link>
 
+              <Link href="/notifications" class="notif-bell" title="Уведомления">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                <span v-if="unreadCount > 0" class="notif-bell__badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+              </Link>
+
               <div class="user-menu" :class="{ 'user-menu--open': menuOpen }" v-click-outside="closeMenu">
                 <button class="user-menu__trigger" @click="menuOpen = !menuOpen">
                   <div class="avatar avatar--32">
@@ -80,6 +88,14 @@
                   <Link href="/my/bookmarks" class="user-menu__item" @click="menuOpen = false">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
                     Закладки
+                  </Link>
+                  <Link href="/notifications" class="user-menu__item" @click="menuOpen = false">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    Уведомления
+                    <span v-if="unreadCount > 0" class="menu-badge">{{ unreadCount }}</span>
                   </Link>
                   <Link href="/settings" class="user-menu__item" @click="menuOpen = false">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -156,6 +172,7 @@ import Toast from '@/Components/Toast.vue'
 
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
+const unreadCount = computed(() => page.props.unreadNotificationsCount ?? 0)
 
 const menuOpen   = ref(false)
 const mobileOpen = ref(false)
@@ -234,3 +251,50 @@ const vClickOutside = {
   },
 }
 </script>
+
+<style scoped>
+.notif-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+.notif-bell:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.notif-bell__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+.menu-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #e53e3e;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+</style>

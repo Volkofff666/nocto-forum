@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ArticleCategory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -25,7 +26,8 @@ class Article extends Model
     ];
 
     protected $casts = [
-        'tags' => 'array',
+        'tags'     => 'array',
+        'category' => ArticleCategory::class,
     ];
 
     protected static function booted(): void

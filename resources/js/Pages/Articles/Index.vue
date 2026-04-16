@@ -101,7 +101,7 @@ import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
-import { CATEGORIES } from '@/composables/useCategories'
+import { useCategories } from '@/composables/useCategories'
 
 const props = defineProps({
   articles:       Object,
@@ -121,7 +121,7 @@ const sort     = ref(props.filters?.sort     || 'latest')
 const category = ref(props.filters?.category || null)
 const tag      = ref(props.filters?.tag      || null)
 
-const categories = CATEGORIES
+const categories = useCategories()
 
 function setSort(s)     { sort.value = s; reload() }
 function setCategory(c) { category.value = c; reload() }
