@@ -313,76 +313,98 @@ textarea, input, select { font-family: inherit; }
 
 .article-card {
   display: flex;
-  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 0;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding: 16px;
-  transition: background 0.15s;
+  gap: 0;
+  transition: background 0.12s;
 }
-.article-card:first-child {
-  border-top: 1px solid var(--border);
-}
-.article-card:hover {
-  background: var(--bg-hover);
-}
-.article-card--pinned {
-  border-left: 3px solid var(--accent);
-  padding-left: 13px;
-}
-.article-card--pinned:hover {
-  background: var(--bg-hover);
-}
+.article-card:first-child { border-top: 1px solid var(--border); }
+.article-card:hover { background: var(--bg-hover); }
+.article-card--pinned { border-left: 3px solid var(--accent); padding-left: 13px; }
+.article-card--pinned:hover { background: var(--bg-hover); }
 
 /* Vote column */
 .article-card__vote-col {
   flex-shrink: 0;
-  width: 48px;
+  width: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 4px;
   padding-top: 2px;
-  margin-right: 12px;
+  margin-right: 14px;
 }
+.vote-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.vote-arrow:hover { background: var(--bg-secondary); color: var(--text); }
+.vote-score {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  text-align: center;
+  min-width: 40px;
+  padding: 4px 0;
+}
+.vote-score--pos { color: var(--accent); }
+.vote-score--neg { color: #e53e3e; }
 
 /* Body */
 .article-card__body {
   flex: 1;
   min-width: 0;
-  padding-right: 8px;
 }
 
-/* Thumbnail */
-.article-card__thumb-wrap {
-  flex-shrink: 0;
-  width: 160px;
-  height: 106px;
-  overflow: hidden;
-  border-radius: 6px;
-  margin-left: 16px;
+/* Cover image full-width */
+.article-card__cover-wrap {
   display: block;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
 }
-.article-card__thumb {
+.article-card__cover {
   width: 100%;
-  height: 100%;
+  height: auto;
+  max-height: 512px;
   object-fit: cover;
   display: block;
   transition: none;
 }
 
+.article-card__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.article-card__stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
 .article-card__meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 8px;
-}
-
-.article-card__author-wrap {
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
 .article-card__author {
@@ -400,9 +422,9 @@ textarea, input, select { font-family: inherit; }
 }
 
 .article-card__title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.3;
   margin-bottom: 6px;
   letter-spacing: -0.2px;
 }
@@ -2120,51 +2142,13 @@ mark {
   min-width: 0;
 }
 
-/* ── Card vote button (feed footer) ───────────── */
-
-.card-vote-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border-strong);
-  background: var(--bg-secondary);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.14s;
-  white-space: nowrap;
-  line-height: 1;
-  width: 100%;
-}
-.card-vote-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-light);
-}
-.card-vote-btn--pos {
-  color: var(--accent);
-  border-color: rgba(0, 123, 255, 0.35);
-  background: var(--accent-light);
-}
-.card-vote-btn--neg {
-  color: #e53e3e;
-  border-color: rgba(229, 62, 62, 0.35);
-  background: rgba(229, 62, 62, 0.07);
-}
-
 /* ── Pinned badge inside card ─────────────────── */
 
 .article-card__pin-badge {
-  flex: 0 0 100%;
-  order: -1;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 0 8px;
+  margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
   color: var(--accent);
@@ -2227,9 +2211,9 @@ mark {
   .auth-box { padding: 24px 20px; }
   .profile-hero { padding: 16px; }
   .article-card { padding: 12px; }
+  .article-card__vote-col { width: 40px; margin-right: 10px; }
+  .vote-score { font-size: 15px; }
   .article-card__title { font-size: 15px; }
-  .article-card__thumb-wrap { width: 90px; height: 66px; margin-left: 10px; }
-  .article-card__vote-col { width: 38px; margin-right: 8px; }
-  .article-card__excerpt { display: none; }
+  .article-card__cover { max-height: 280px; }
   .feed-col { gap: 0; }
 }
