@@ -2158,23 +2158,6 @@ mark {
 [data-theme="dark"] .badge-tools    { background: rgba(133, 100, 4, 0.2); color: #fde68a; }
 [data-theme="dark"] .badge-other    { background: rgba(255,255,255,0.06); color: var(--text-muted); }
 
-/* ── Theme toggle button ──────────────────────── */
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: none;
-  background: none;
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  flex-shrink: 0;
-}
-.theme-toggle:hover { background: var(--bg-hover); color: var(--text); }
 
 /* ── Responsive ───────────────────────────────── */
 

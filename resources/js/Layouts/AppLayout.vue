@@ -12,48 +12,28 @@
             <Link href="/tools" class="header__nav-link" :class="{ active: isTools }">Инструменты</Link>
           </nav>
 
-          <!-- Theme toggle -->
-          <button class="theme-toggle" @click="toggleTheme" :title="isDark ? 'Светлая тема' : 'Тёмная тема'">
-            <svg v-if="isDark" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="5"/>
-              <line x1="12" y1="1" x2="12" y2="3"/>
-              <line x1="12" y1="21" x2="12" y2="23"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-              <line x1="1" y1="12" x2="3" y2="12"/>
-              <line x1="21" y1="12" x2="23" y2="12"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-            <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </button>
-
-          <!-- Search -->
-          <div class="header-search" :class="{ 'header-search--open': searchOpen }">
-            <button v-if="!searchOpen" class="header-search__icon" @click="openSearch" title="Поиск">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
-            <div v-else class="header-search__form">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--text-muted)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input
-                ref="searchEl"
-                v-model="searchQ"
-                type="search"
-                class="header-search__input"
-                placeholder="Поиск..."
-                @keydown.enter="doSearch"
-                @keydown.esc="closeSearch"
-              />
-              <button class="header-search__close" @click="closeSearch">✕</button>
-            </div>
-          </div>
-
           <div class="header__right">
-            <template v-if="user">
-              <Link href="/articles/create" class="btn btn-primary btn-sm">Написать</Link>
+            <!-- Search -->
+            <div class="header-search" :class="{ 'header-search--open': searchOpen }">
+              <button v-if="!searchOpen" class="header-search__icon" @click="openSearch" title="Поиск">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </button>
+              <div v-else class="header-search__form">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;color:var(--text-muted)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input
+                  ref="searchEl"
+                  v-model="searchQ"
+                  type="search"
+                  class="header-search__input"
+                  placeholder="Поиск..."
+                  @keydown.enter="doSearch"
+                  @keydown.esc="closeSearch"
+                />
+                <button class="header-search__close" @click="closeSearch">✕</button>
+              </div>
+            </div>
 
+            <template v-if="user">
               <Link href="/notifications" class="notif-bell" title="Уведомления">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -61,6 +41,8 @@
                 </svg>
                 <span v-if="unreadCount > 0" class="notif-bell__badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
               </Link>
+
+              <Link href="/articles/create" class="btn btn-primary btn-sm">Написать</Link>
 
               <div class="user-menu" :class="{ 'user-menu--open': menuOpen }" v-click-outside="closeMenu">
                 <button class="user-menu__trigger" @click="menuOpen = !menuOpen">
@@ -109,6 +91,20 @@
                     </Link>
                   </template>
                   <div class="user-menu__sep"></div>
+                  <button class="user-menu__item" @click="toggleTheme(); menuOpen = false">
+                    <svg v-if="isDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="5"/>
+                      <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                    </svg>
+                    <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    {{ isDark ? 'Светлая тема' : 'Тёмная тема' }}
+                  </button>
+                  <div class="user-menu__sep"></div>
                   <button class="user-menu__item user-menu__item--danger" @click="logout">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Выйти
@@ -142,6 +138,7 @@
         <Link :href="`/profile/${user.username}`" class="header__nav-link" @click="mobileOpen = false">Профиль</Link>
         <Link href="/articles/create" class="header__nav-link" @click="mobileOpen = false">Написать статью</Link>
         <Link href="/my/bookmarks" class="header__nav-link" @click="mobileOpen = false">Закладки</Link>
+        <button class="header__nav-link" style="text-align:left;border:none;background:none;" @click="toggleTheme(); mobileOpen = false">{{ isDark ? 'Светлая тема' : 'Тёмная тема' }}</button>
         <button class="header__nav-link" style="text-align:left;border:none;background:none;color:#dc3545;" @click="logout">Выйти</button>
       </template>
       <template v-else>
