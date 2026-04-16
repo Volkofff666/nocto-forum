@@ -8,22 +8,30 @@
       Закреплено
     </div>
 
-    <!-- Cover image -->
-    <Link v-if="article.cover_url" :href="`/articles/${article.slug}`" class="article-card__cover-wrap">
-      <img
-        :src="article.cover_url"
-        :alt="article.title"
-        class="article-card__cover"
-        loading="lazy"
-        @error="e => e.target.parentElement.style.display='none'"
-      />
-    </Link>
+    <!-- Vote column -->
+    <div class="article-card__vote-col">
+      <button
+        class="card-vote-btn"
+        :class="{
+          'card-vote-btn--pos': article.votes_count > 0,
+          'card-vote-btn--neg': article.votes_count < 0,
+        }"
+        title="Рейтинг"
+      >
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="18 15 12 9 6 15"/>
+        </svg>
+        {{ article.votes_count > 0 ? '+' : '' }}{{ article.votes_count }}
+      </button>
+    </div>
 
+    <!-- Main content -->
     <div class="article-card__body">
-      <!-- Meta -->
+      <!-- Meta: category + author + time -->
       <div class="article-card__meta">
+        <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
         <div class="article-card__author-wrap">
-          <div class="avatar avatar--24">
+          <div class="avatar avatar--20">
             <img v-if="article.user.avatar_url" :src="article.user.avatar_url" :alt="article.user.name" />
             <template v-else>{{ article.user.avatar }}</template>
           </div>
@@ -33,7 +41,6 @@
         <span class="article-card__time">{{ timeAgo(article.created_at) }}</span>
         <span class="article-card__sep">·</span>
         <span class="article-card__time">{{ readTime(article.body) }} мин.</span>
-        <span :class="`badge badge-${article.category}`">{{ catLabel(article.category) }}</span>
       </div>
 
       <!-- Title -->
@@ -55,22 +62,8 @@
         >#{{ tag }}</a>
       </div>
 
-      <!-- Footer -->
+      <!-- Footer: comments, views, bookmark -->
       <div class="article-card__footer">
-        <button
-          class="card-vote-btn"
-          :class="{
-            'card-vote-btn--pos': article.votes_count > 0,
-            'card-vote-btn--neg': article.votes_count < 0,
-          }"
-          title="Рейтинг"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="18 15 12 9 6 15"/>
-          </svg>
-          {{ article.votes_count > 0 ? '+' : '' }}{{ article.votes_count }}
-        </button>
-
         <Link :href="`/articles/${article.slug}#comments`" class="stat-btn" title="Комментарии">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -91,6 +84,21 @@
         <BookmarkButton :articleId="article.id" :isBookmarked="isBookmarked" />
       </div>
     </div>
+
+    <!-- Thumbnail (right side) -->
+    <Link
+      v-if="article.cover_url"
+      :href="`/articles/${article.slug}`"
+      class="article-card__thumb-wrap"
+    >
+      <img
+        :src="article.cover_url"
+        :alt="article.title"
+        class="article-card__thumb"
+        loading="lazy"
+        @error="e => e.target.closest('.article-card__thumb-wrap').style.display='none'"
+      />
+    </Link>
   </article>
 </template>
 
