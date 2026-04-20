@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ArticleCategory;
 use App\Models\Article;
+use App\Services\HtmlPurifierService;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -65,18 +67,20 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'title'     => 'required|string|max:255',
             'excerpt'   => 'required|string|max:500',
-            'body'      => 'required|string',
-            'category'  => 'required|in:tech,security,guides,news,other',
+            'body'      => 'required|string|max:200000',
+            'category'  => 'required|in:' . implode(',', ArticleCategory::values()),
             'cover_url' => 'nullable|url|max:500',
             'tags'      => 'nullable|array|max:7',
             'tags.*'    => 'string|max:40',
             'publish'   => 'sometimes|boolean',
         ]);
 
+        $purifier = app(HtmlPurifierService::class);
+
         $article = $request->user()->articles()->create([
             'title'     => $validated['title'],
             'excerpt'   => $validated['excerpt'],
-            'body'      => $validated['body'],
+            'body'      => $purifier->clean($validated['body']),
             'category'  => $validated['category'],
             'cover_url' => $validated['cover_url'] ?? null,
             'tags'      => $validated['tags'] ?? [],
@@ -152,12 +156,15 @@ class ArticleController extends Controller
         $validated = $request->validate([
             'title'     => 'required|string|max:255',
             'excerpt'   => 'required|string|max:500',
-            'body'      => 'required|string',
-            'category'  => 'required|in:tech,security,guides,news,other',
+            'body'      => 'required|string|max:200000',
+            'category'  => 'required|in:' . implode(',', ArticleCategory::values()),
             'cover_url' => 'nullable|url|max:500',
             'tags'      => 'nullable|array|max:7',
             'tags.*'    => 'string|max:40',
         ]);
+
+        $purifier = app(HtmlPurifierService::class);
+        $validated['body'] = $purifier->clean($validated['body']);
 
         $article->update($validated);
         $this->clearArticleCache();

@@ -85,7 +85,9 @@
 import { ref, computed } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import ArticleEditor from '@/Components/ArticleEditor.vue'
-import { CATEGORIES } from '@/composables/useCategories'
+import { useCategories } from '@/composables/useCategories'
+
+const CATEGORIES = useCategories()
 
 defineProps({ errors: { type: Object, default: () => ({}) } })
 

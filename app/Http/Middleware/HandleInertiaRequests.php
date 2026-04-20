@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\ArticleCategory;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -29,9 +30,11 @@ class HandleInertiaRequests extends Middleware
                     'role'       => $request->user()->role,
                 ] : null,
             ],
+            'categories' => ArticleCategory::forFrontend(),
             'pendingReports' => fn() => $request->user()?->isModerator()
                 ? Report::where('status', 'pending')->count()
                 : 0,
+            'unreadNotificationsCount' => fn() => $request->user()?->unreadNotifications()->count() ?? 0,
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error'   => fn() => $request->session()->get('error'),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ToolsController;
 use App\Http\Controllers\ReportController;
@@ -95,6 +96,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     // Лог действий
     Route::get('/logs', [AdminLogs::class, 'index'])->name('admin.logs');
+});
+
+// Уведомления
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications',               [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all',     [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/{id}/read',    [NotificationController::class, 'markRead'])->name('notifications.read');
 });
 
 // Breeze auth routes

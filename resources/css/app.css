@@ -293,6 +293,7 @@ textarea, input, select { font-family: inherit; }
   user-select: none;
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--20 { width: 20px; height: 20px; font-size: 9px; }
 .avatar--24 { width: 24px; height: 24px; font-size: 10px; }
 .avatar--32 { width: 32px; height: 32px; font-size: 12px; }
 .avatar--40 { width: 40px; height: 40px; font-size: 15px; }
@@ -311,44 +312,105 @@ textarea, input, select { font-family: inherit; }
 /* ── Article Card ─────────────────────────────── */
 
 .article-card {
+  display: flex;
+  align-items: flex-start;
   background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  will-change: transform;
+  border-bottom: 1px solid var(--border);
+  padding: 16px;
+  gap: 0;
+  transition: background 0.12s;
 }
-.article-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-card-hover);
-  border-color: var(--border-strong);
+.article-card:first-child { border-top: 1px solid var(--border); }
+.article-card:hover { background: var(--bg-hover); }
+.article-card--pinned { border-left: 3px solid var(--accent); padding-left: 13px; }
+.article-card--pinned:hover { background: var(--bg-hover); }
+
+/* Vote column */
+.article-card__vote-col {
+  flex-shrink: 0;
+  width: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+  margin-right: 14px;
 }
-.article-card--pinned {
-  border-top: 3px solid var(--accent);
+.vote-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
 }
-.article-card--pinned:hover {
-  box-shadow: 0 8px 28px rgba(0, 123, 255, 0.12);
+.vote-arrow:hover { background: var(--bg-secondary); color: var(--text); }
+.vote-score {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  text-align: center;
+  min-width: 40px;
+  padding: 4px 0;
+}
+.vote-score--pos { color: var(--accent); }
+.vote-score--neg { color: #e53e3e; }
+
+/* Body */
+.article-card__body {
+  flex: 1;
+  min-width: 0;
 }
 
+/* Cover image full-width */
+.article-card__cover-wrap {
+  display: block;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.article-card__cover {
+  width: 100%;
+  height: auto;
+  max-height: 512px;
+  object-fit: cover;
+  display: block;
+  transition: none;
+}
+
+.article-card__top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.article-card__stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
 .article-card__meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
-}
-
-.article-card__author-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  margin-bottom: 8px;
 }
 
 .article-card__author {
   font-size: 13px;
   font-weight: 500;
-  color: var(--text);
+  color: var(--text-muted);
 }
 .article-card__author:hover { color: var(--accent); }
 
@@ -363,16 +425,17 @@ textarea, input, select { font-family: inherit; }
   font-size: 18px;
   font-weight: 700;
   line-height: 1.3;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: -0.2px;
 }
+.article-card__title a { color: var(--text); }
 .article-card__title a:hover { color: var(--accent); }
 
 .article-card__excerpt {
   font-size: 14px;
   color: var(--text-muted);
   line-height: 1.5;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1502,24 +1565,7 @@ mark {
   color: var(--text-light);
 }
 
-/* ── Cover image ──────────────────────────────── */
-
-.article-card__cover-wrap {
-  display: block;
-  overflow: hidden;
-  max-height: 240px;
-}
-.article-card__cover {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.35s ease;
-}
-.article-card:hover .article-card__cover { transform: scale(1.04); }
-
-.article-card__body { padding: 18px 22px 16px; }
-.article-card { padding: 0; }
+/* ── Cover image (article show page, not feed card) ── */
 
 .article-cover {
   overflow: hidden;
@@ -2096,48 +2142,13 @@ mark {
   min-width: 0;
 }
 
-/* ── Card vote button (feed footer) ───────────── */
-
-.card-vote-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 13px;
-  border-radius: 20px;
-  border: 1px solid var(--border-strong);
-  background: var(--bg-secondary);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-muted);
-  transition: all 0.14s;
-  white-space: nowrap;
-  line-height: 1;
-}
-.card-vote-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-light);
-}
-.card-vote-btn--pos {
-  color: var(--accent);
-  border-color: rgba(0, 123, 255, 0.35);
-  background: var(--accent-light);
-}
-.card-vote-btn--neg {
-  color: #e53e3e;
-  border-color: rgba(229, 62, 62, 0.35);
-  background: rgba(229, 62, 62, 0.07);
-}
-
 /* ── Pinned badge inside card ─────────────────── */
 
 .article-card__pin-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 16px;
-  background: var(--accent-light);
-  border-bottom: 1px solid rgba(0, 123, 255, 0.14);
+  margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
   color: var(--accent);
@@ -2158,23 +2169,6 @@ mark {
 [data-theme="dark"] .badge-tools    { background: rgba(133, 100, 4, 0.2); color: #fde68a; }
 [data-theme="dark"] .badge-other    { background: rgba(255,255,255,0.06); color: var(--text-muted); }
 
-/* ── Theme toggle button ──────────────────────── */
-
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border: none;
-  background: none;
-  border-radius: var(--radius);
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  flex-shrink: 0;
-}
-.theme-toggle:hover { background: var(--bg-hover); color: var(--text); }
 
 /* ── Responsive ───────────────────────────────── */
 
@@ -2216,10 +2210,10 @@ mark {
   .write-page { padding: 20px 16px; }
   .auth-box { padding: 24px 20px; }
   .profile-hero { padding: 16px; }
-  .article-card__body { padding: 14px 16px 12px; }
-  .article-card__title { font-size: 16px; }
-  .article-card__cover { height: 180px; }
-  .article-card__cover-wrap { max-height: 180px; }
-  .feed-col { gap: 10px; }
-  .article-card:hover { transform: none; }
+  .article-card { padding: 12px; }
+  .article-card__vote-col { width: 40px; margin-right: 10px; }
+  .vote-score { font-size: 15px; }
+  .article-card__title { font-size: 15px; }
+  .article-card__cover { max-height: 280px; }
+  .feed-col { gap: 0; }
 }

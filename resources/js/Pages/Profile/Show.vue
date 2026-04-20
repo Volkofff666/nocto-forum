@@ -137,12 +137,12 @@ function formatViews(n) {
 <style scoped>
 /* ── Cover ──────────────────────────────────── */
 .profile-cover {
+  position: relative;
   height: 200px;
   background: linear-gradient(135deg, var(--accent-light) 0%, var(--bg-secondary) 100%);
-  position: relative;
   overflow: hidden;
-  margin-left: -16px;
-  margin-right: -16px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 0;
 }
 
 .profile-cover--img { background: var(--bg-secondary); }
@@ -158,8 +158,6 @@ function formatViews(n) {
 .profile-header {
   background: var(--bg);
   border-bottom: 1px solid var(--border);
-  margin-left: -16px;
-  margin-right: -16px;
   padding: 0 16px 20px;
 }
 
@@ -173,7 +171,9 @@ function formatViews(n) {
 }
 
 .profile-avatar {
-  margin-top: -40px; /* аватар перекрывает обложку */
+  position: relative;
+  z-index: 1;
+  margin-top: -40px;
 }
 
 .profile-header__actions {
@@ -294,7 +294,7 @@ function formatViews(n) {
 
 /* ── Mobile ─────────────────────────────────── */
 @media (max-width: 600px) {
-  .profile-cover { height: 130px; }
+  .profile-cover { height: 130px; border-radius: 8px; }
   .profile-avatar { margin-top: -32px; }
   .profile-header__top-row { flex-wrap: wrap; gap: 10px; }
   .profile-header__actions { width: 100%; justify-content: flex-end; }

@@ -1,14 +1,18 @@
-// FIXED: Single source of truth for categories — synced with backend enum values
-// Old values (proxy, vpn, tools) removed. New values match DB enum after 2026-04-13 migration.
-export const CATEGORIES = [
-  { value: 'tech',     label: 'Технологии' },
-  { value: 'security', label: 'Безопасность' },
-  { value: 'guides',   label: 'Гайды' },
-  { value: 'news',     label: 'Новости' },
-  { value: 'other',    label: 'Другое' },
-]
+import { computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+
+export function useCategories() {
+  const page = usePage()
+  return computed(() => page.props.categories ?? [])
+}
 
 export function useCategoryLabel(value) {
-  const cat = CATEGORIES.find(c => c.value === value)
+  const page = usePage()
+  const categories = page.props.categories ?? []
+  const cat = categories.find(c => c.value === value)
   return cat ? cat.label : value
 }
+
+// Deprecated — use useCategories() instead.
+// Kept as empty fallback so any direct import does not throw.
+export const CATEGORIES = []
