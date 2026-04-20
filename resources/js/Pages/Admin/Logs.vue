@@ -28,16 +28,7 @@
         </tbody>
       </table>
 
-      <div v-if="logs.last_page > 1" class="pagination" style="padding:16px 0 4px;">
-        <button
-          v-for="link in logs.links" :key="link.label"
-          class="page-btn"
-          :class="{ 'page-btn--active': link.active }"
-          :disabled="!link.url"
-          @click="link.url && router.get(link.url)"
-          v-html="link.label"
-        />
-      </div>
+      <Pagination :paginator="logs" style="padding:16px 0 4px;" />
     </div>
   </AdminLayout>
 </template>
@@ -45,6 +36,7 @@
 <script setup>
 import { router } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import Pagination from '@/Components/Pagination.vue'
 
 defineProps({ logs: Object })
 

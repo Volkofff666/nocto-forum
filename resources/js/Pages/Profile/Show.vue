@@ -68,16 +68,7 @@
       <div v-if="articles.data.length" class="profile-articles">
         <ArticleCard v-for="a in articles.data" :key="a.id" :article="a" />
 
-        <div v-if="articles.last_page > 1" class="pagination" style="padding:8px 0 0;">
-          <button
-            v-for="link in articles.links" :key="link.label"
-            class="page-btn"
-            :class="{ 'page-btn--active': link.active }"
-            :disabled="!link.url"
-            @click="link.url && router.get(link.url)"
-            v-html="link.label"
-          />
-        </div>
+        <Pagination :paginator="articles" style="padding:8px 0 0;" />
       </div>
 
       <div v-else class="profile-empty">
@@ -103,6 +94,7 @@ import { computed } from 'vue'
 import { router, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
+import Pagination from '@/Components/Pagination.vue'
 
 const props = defineProps({
   profileUser:   Object,

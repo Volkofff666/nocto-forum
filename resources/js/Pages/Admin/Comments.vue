@@ -44,16 +44,7 @@
         </tbody>
       </table>
 
-      <div v-if="comments.last_page > 1" class="pagination" style="padding:16px 0 4px;">
-        <button
-          v-for="link in comments.links" :key="link.label"
-          class="page-btn"
-          :class="{ 'page-btn--active': link.active }"
-          :disabled="!link.url"
-          @click="link.url && router.get(link.url)"
-          v-html="link.label"
-        />
-      </div>
+      <Pagination :paginator="comments" style="padding:16px 0 4px;" />
     </div>
   </AdminLayout>
 </template>
@@ -62,6 +53,7 @@
 import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import Pagination from '@/Components/Pagination.vue'
 
 const props = defineProps({
   comments: Object,

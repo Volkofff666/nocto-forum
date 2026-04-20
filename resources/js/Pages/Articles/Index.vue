@@ -47,16 +47,7 @@
         </div>
 
         <!-- Pagination -->
-        <div v-if="articles.last_page > 1" class="pagination">
-          <button
-            v-for="link in articles.links" :key="link.label"
-            class="page-btn"
-            :class="{ 'page-btn--active': link.active }"
-            :disabled="!link.url"
-            @click="link.url && router.get(link.url)"
-            v-html="link.label"
-          />
-        </div>
+        <Pagination :paginator="articles" />
       </div>
 
       <!-- Sidebar -->
@@ -101,6 +92,7 @@ import { ref } from 'vue'
 import { router, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
+import Pagination from '@/Components/Pagination.vue'
 import { useCategories } from '@/composables/useCategories'
 
 const props = defineProps({

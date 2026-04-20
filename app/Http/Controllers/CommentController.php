@@ -8,6 +8,7 @@ use App\Notifications\NewCommentOnArticle;
 use App\Notifications\NewReplyToComment;
 use App\Services\HtmlPurifierService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CommentController extends Controller
 {
@@ -16,7 +17,10 @@ class CommentController extends Controller
         $validated = $request->validate([
             // Added min:3 to prevent single-character or empty-string comments
             'body'      => 'required|string|min:3|max:2000',
-            'parent_id' => 'nullable|exists:comments,id',
+            'parent_id' => [
+                'nullable',
+                Rule::exists('comments', 'id')->where('article_id', $article->id),
+            ],
         ]);
 
         $purifier = app(HtmlPurifierService::class);

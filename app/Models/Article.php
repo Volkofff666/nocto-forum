@@ -23,11 +23,13 @@ class Article extends Model
         'views_count',
         'tags',
         'cover_url',
+        'is_pinned',
     ];
 
     protected $casts = [
-        'tags'     => 'array',
-        'category' => ArticleCategory::class,
+        'tags'      => 'array',
+        'category'  => ArticleCategory::class,
+        'is_pinned' => 'boolean',
     ];
 
     protected static function booted(): void

@@ -519,6 +519,7 @@ textarea, input, select { font-family: inherit; }
 
 .sidebar { display: flex; flex-direction: column; gap: 12px; }
 
+
 .sidebar-card {
   background: var(--bg);
   border: 1px solid var(--border);

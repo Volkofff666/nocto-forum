@@ -21,10 +21,14 @@ class ReportController extends Controller
             ->paginate(25)
             ->withQueryString();
 
+        $rawCounts = Report::selectRaw('status, count(*) as cnt')
+            ->groupBy('status')
+            ->pluck('cnt', 'status');
+
         $counts = [
-            'pending'  => Report::where('status', 'pending')->count(),
-            'resolved' => Report::where('status', 'resolved')->count(),
-            'dismissed' => Report::where('status', 'dismissed')->count(),
+            'pending'   => (int) ($rawCounts['pending']   ?? 0),
+            'resolved'  => (int) ($rawCounts['resolved']  ?? 0),
+            'dismissed' => (int) ($rawCounts['dismissed'] ?? 0),
         ];
 
         return Inertia::render('Admin/Reports', [

@@ -24,7 +24,7 @@ class ArticleController extends Controller
             'tag' => $tag, 'page' => $request->input('page', 1),
         ]));
 
-        $articles = Cache::remember($cacheKey, 60, function () use ($category, $sort, $tag) {
+        $articles = Cache::tags(['articles'])->remember($cacheKey, 60, function () use ($category, $sort, $tag) {
             $query = Article::published()
                 ->with('user')
                 ->withCount('comments');
@@ -35,7 +35,7 @@ class ArticleController extends Controller
             return $query->ordered($sort)->paginate(10)->withQueryString();
         });
 
-        $categoryCounts = Cache::remember('category_counts', 60, function () {
+        $categoryCounts = Cache::tags(['articles'])->remember('category_counts', 60, function () {
             return Article::published()
                 ->selectRaw('category, count(*) as count')
                 ->groupBy('category')
@@ -207,9 +207,7 @@ class ArticleController extends Controller
 
     private function clearArticleCache(): void
     {
-        // Replaced Cache::flush() (wiped ALL cache including sessions/rate-limits)
-        // with targeted invalidation of the known article-related cache keys.
-        Cache::forget('category_counts');
-        Cache::forget('articles_latest');
+        // Сбрасываем все кеши статей по тегу — охватывает все хеш-ключи пагинации
+        Cache::tags(['articles'])->flush();
     }
 }

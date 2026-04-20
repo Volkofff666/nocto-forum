@@ -55,6 +55,10 @@ const scoreClass = computed(() => {
 
 function vote(type) {
   if (!canVote.value) { router.visit('/login'); return }
+
+  const prevVote  = localVote.value
+  const prevCount = localCount.value
+
   if (localVote.value === type) {
     localCount.value += type === 'up' ? -1 : 1
     localVote.value = null
@@ -64,6 +68,10 @@ function vote(type) {
     localCount.value += type === 'up' ? 1 : -1
     localVote.value = type
   }
-  router.post(`/articles/${props.article.id}/vote`, { type }, { preserveScroll: true })
+
+  router.post(`/articles/${props.article.id}/vote`, { type }, {
+    preserveScroll: true,
+    onError: () => { localVote.value = prevVote; localCount.value = prevCount },
+  })
 }
 </script>

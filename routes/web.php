@@ -56,7 +56,7 @@ Route::get('/my/bookmarks', [BookmarkController::class, 'index'])->middleware('a
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // Жалобы
-Route::post('/report/{type}/{id}', [ReportController::class, 'store'])->middleware('auth')->name('report.store');
+Route::post('/report/{type}/{id}', [ReportController::class, 'store'])->middleware(['auth', 'throttle:5,1'])->name('report.store');
 
 // Инструменты
 Route::get('/tools', [ToolsController::class, 'index'])->name('tools');

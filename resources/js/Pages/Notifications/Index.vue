@@ -56,17 +56,7 @@
       </template>
 
       <!-- Pagination -->
-      <div v-if="notifications.last_page > 1" class="pagination">
-        <button
-          v-for="link in notifications.links"
-          :key="link.label"
-          class="page-btn"
-          :class="{ 'page-btn--active': link.active }"
-          :disabled="!link.url"
-          @click="link.url && router.get(link.url)"
-          v-html="link.label"
-        />
-      </div>
+      <Pagination :paginator="notifications" />
     </div>
   </AppLayout>
 </template>
@@ -76,6 +66,7 @@ import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import NotifItem from '@/Components/NotifItem.vue'
+import Pagination from '@/Components/Pagination.vue'
 
 const props = defineProps({
   notifications: Object, // paginated: { data, current_page, last_page, links, ... }
@@ -88,11 +79,16 @@ const read   = computed(() => props.notifications.data.filter(n =>  n.read_at))
 const hasAnyNotification = computed(() => props.notifications.data.length > 0)
 
 function handleClick(n) {
-  // Fire-and-forget: mark as read then navigate
+  const target = `/articles/${n.data.article_slug}`
   if (!n.read_at) {
-    router.post(`/notifications/${n.id}/read`, {}, { preserveState: false })
+    // Навигация только после того как сервер пометил уведомление прочитанным
+    router.post(`/notifications/${n.id}/read`, {}, {
+      preserveScroll: true,
+      onSuccess: () => router.visit(target),
+    })
+    return
   }
-  router.visit(`/articles/${n.data.article_slug}`)
+  router.visit(target)
 }
 
 function markAllRead() {

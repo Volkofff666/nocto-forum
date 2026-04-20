@@ -31,6 +31,29 @@
               </div>
             </div>
 
+            <!-- Sidebar image preview -->
+            <div style="margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+              <div class="settings-cover-preview" :style="form.sidebar_image_url ? `background-image:url('${form.sidebar_image_url}')` : ''">
+                <div class="settings-cover-preview__empty" v-if="!form.sidebar_image_url || sidebarError">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Баннер сайдбара</span>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+                <label class="form-label">Баннер сайдбара</label>
+                <input
+                  v-model="form.sidebar_image_url"
+                  type="url"
+                  class="form-input"
+                  :class="{ 'form-input--error': errors.sidebar_image_url }"
+                  placeholder="https://example.com/banner.jpg"
+                  @input="sidebarError = false"
+                />
+                <div v-if="errors.sidebar_image_url" class="form-error">{{ errors.sidebar_image_url }}</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Картинка будет показана в сайдбаре главной страницы</div>
+              </div>
+            </div>
+
             <!-- Avatar preview -->
             <div style="display:flex;align-items:center;gap:16px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
               <div class="avatar avatar--80">
@@ -117,16 +140,18 @@ const props = defineProps({
 })
 
 const form = ref({
-  name:       props.user.name,
-  username:   props.user.username,
-  bio:        props.user.bio || '',
-  avatar_url: props.user.avatar_url || '',
-  cover_url:  props.user.cover_url || '',
+  name:              props.user.name,
+  username:          props.user.username,
+  bio:               props.user.bio || '',
+  avatar_url:        props.user.avatar_url || '',
+  cover_url:         props.user.cover_url || '',
+  sidebar_image_url: props.user.sidebar_image_url || '',
 })
 
-const saving    = ref(false)
-const imgError  = ref(false)
-const coverError = ref(false)
+const saving      = ref(false)
+const imgError    = ref(false)
+const coverError  = ref(false)
+const sidebarError = ref(false)
 
 const initials = computed(() => {
   const words = (form.value.name || '').trim().split(' ')
