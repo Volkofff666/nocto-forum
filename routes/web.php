@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ReportController as AdminReports;
 use App\Http\Controllers\Admin\LogController as AdminLogs;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
@@ -63,6 +64,13 @@ Route::get('/tools', [ToolsController::class, 'index'])->name('tools');
 
 // Профиль
 Route::get('/profile/{username}', [ProfileController::class, 'show'])->name('profile.show');
+Route::get('/profile/{username}/followers', [FollowController::class, 'followers'])->name('profile.followers');
+Route::get('/profile/{username}/following', [FollowController::class, 'following'])->name('profile.following');
+
+// Подписки
+Route::post('/users/{user}/follow', [FollowController::class, 'toggle'])
+    ->middleware(['auth', 'throttle:30,1'])
+    ->name('follow.toggle');
 
 // Telegram OAuth
 Route::get('/auth/telegram', [SocialiteController::class, 'redirect'])->name('auth.telegram');

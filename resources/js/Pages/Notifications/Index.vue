@@ -23,7 +23,7 @@
             </svg>
           </div>
           <div class="empty__title">Нет уведомлений</div>
-          <div class="empty__text">Здесь появятся уведомления о комментариях и ответах</div>
+          <div class="empty__text">Здесь появятся уведомления о комментариях, ответах и новых подписчиках</div>
         </div>
       </div>
 
@@ -78,10 +78,16 @@ const unread = computed(() => props.notifications.data.filter(n => !n.read_at))
 const read   = computed(() => props.notifications.data.filter(n =>  n.read_at))
 const hasAnyNotification = computed(() => props.notifications.data.length > 0)
 
+function notifTarget(n) {
+  if (n.data.type === 'new_follower') {
+    return `/profile/${n.data.actor_username}`
+  }
+  return `/articles/${n.data.article_slug}`
+}
+
 function handleClick(n) {
-  const target = `/articles/${n.data.article_slug}`
+  const target = notifTarget(n)
   if (!n.read_at) {
-    // Навигация только после того как сервер пометил уведомление прочитанным
     router.post(`/notifications/${n.id}/read`, {}, {
       preserveScroll: true,
       onSuccess: () => router.visit(target),

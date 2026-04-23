@@ -3,15 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProfileController extends Controller
 {
-    public function show(string $username): Response
+    public function show(Request $request, string $username): Response
     {
-        $user = User::where('username', $username)->firstOrFail();
+        $user     = User::where('username', $username)->firstOrFail();
+        $authUser = $request->user();
 
         $articles = $user->articles()
             ->published()
@@ -20,7 +22,7 @@ class ProfileController extends Controller
             ->latest()
             ->paginate(10);
 
-        // Replaced 3 separate queries with 2 — combines article aggregates into one DB round-trip
+        // Combines article aggregates into one DB round-trip
         $articleStats = DB::table('articles')
             ->where('user_id', $user->id)
             ->selectRaw('COALESCE(SUM(votes_count), 0) as total_votes, COALESCE(SUM(views_count), 0) as total_views')
@@ -30,12 +32,22 @@ class ProfileController extends Controller
         $totalViews    = (int) $articleStats->total_views;
         $totalComments = (int) $user->comments()->count();
 
+        $followersCount = $user->followers()->count();
+        $followingCount = $user->following()->count();
+
+        $isFollowing = $authUser && $authUser->id !== $user->id
+            ? $authUser->following()->where('following_id', $user->id)->exists()
+            : false;
+
         return Inertia::render('Profile/Show', [
-            'profileUser'   => $user,
-            'articles'      => $articles,
-            'totalVotes'    => $totalVotes,
-            'totalViews'    => $totalViews,
-            'totalComments' => $totalComments,
+            'profileUser'    => $user,
+            'articles'       => $articles,
+            'totalVotes'     => $totalVotes,
+            'totalViews'     => $totalViews,
+            'totalComments'  => $totalComments,
+            'followersCount' => $followersCount,
+            'followingCount' => $followingCount,
+            'isFollowing'    => $isFollowing,
         ]);
     }
 }

@@ -9,6 +9,7 @@
             <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'latest' }"    @click="setSort('latest')">Новое</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'popular' }"   @click="setSort('popular')">Популярное</button>
             <button class="tab-btn" :class="{ 'tab-btn--active': sort === 'discussed' }" @click="setSort('discussed')">Обсуждаемое</button>
+            <button v-if="isAuthed" class="tab-btn" :class="{ 'tab-btn--active': sort === 'following' }" @click="setSort('following')">Подписки</button>
           </div>
 
           <!-- Tag filter notice -->
@@ -41,8 +42,14 @@
         <div v-else class="content-card">
           <div class="empty">
             <div class="empty__icon">📭</div>
-            <div class="empty__title">Статей пока нет</div>
-            <div class="empty__text">Станьте первым — напишите что-нибудь интересное</div>
+            <template v-if="sort === 'following'">
+              <div class="empty__title">Нет статей от подписок</div>
+              <div class="empty__text">Подписывайтесь на авторов — их публикации будут появляться здесь</div>
+            </template>
+            <template v-else>
+              <div class="empty__title">Статей пока нет</div>
+              <div class="empty__text">Станьте первым — напишите что-нибудь интересное</div>
+            </template>
           </div>
         </div>
 
@@ -88,8 +95,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { router, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
 import Pagination from '@/Components/Pagination.vue'
@@ -108,6 +115,9 @@ function fmtCount(n) {
   if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + ' K'
   return n.toString()
 }
+
+const page    = usePage()
+const isAuthed = computed(() => !!page.props.auth?.user)
 
 const sort     = ref(props.filters?.sort     || 'latest')
 const category = ref(props.filters?.category || null)

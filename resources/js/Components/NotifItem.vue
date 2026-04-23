@@ -9,8 +9,15 @@
     @keydown.space.prevent="$emit('click')"
   >
     <div class="notif-item__icon" :class="iconClass">
+      <!-- New follower icon -->
+      <svg v-if="isFollower" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+        <circle cx="9" cy="7" r="4"/>
+        <line x1="19" y1="8" x2="19" y2="14"/>
+        <line x1="22" y1="11" x2="16" y2="11"/>
+      </svg>
       <!-- New reply icon -->
-      <svg v-if="isReply" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg v-else-if="isReply" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="9 17 4 12 9 7"/>
         <path d="M20 18v-2a4 4 0 0 0-4-4H4"/>
       </svg>
@@ -24,7 +31,7 @@
       <div class="notif-item__text">
         <span class="notif-item__actor">{{ notification.data.actor_name }}</span>
         {{ actionLabel }}
-        <span class="notif-item__article">«{{ notification.data.article_title }}»</span>
+        <span v-if="!isFollower" class="notif-item__article">«{{ notification.data.article_title }}»</span>
       </div>
       <div v-if="notification.data.comment_preview" class="notif-item__preview">
         {{ notification.data.comment_preview }}
@@ -47,24 +54,29 @@ const props = defineProps({
 
 defineEmits(['click'])
 
-const isReply = computed(() => props.notification.data.type === 'new_reply')
+const isFollower = computed(() => props.notification.data.type === 'new_follower')
+const isReply    = computed(() => props.notification.data.type === 'new_reply')
 
-const actionLabel = computed(() =>
-  isReply.value ? 'ответил на ваш комментарий в' : 'прокомментировал'
-)
+const actionLabel = computed(() => {
+  if (isFollower.value) return 'подписался на вас'
+  if (isReply.value)    return 'ответил на ваш комментарий в'
+  return 'прокомментировал'
+})
 
-const iconClass = computed(() =>
-  isReply.value ? 'notif-item__icon--reply' : 'notif-item__icon--comment'
-)
+const iconClass = computed(() => {
+  if (isFollower.value) return 'notif-item__icon--follower'
+  if (isReply.value)    return 'notif-item__icon--reply'
+  return 'notif-item__icon--comment'
+})
 
 const rtf = new Intl.RelativeTimeFormat('ru', { numeric: 'auto' })
 
 function timeAgo(dateStr) {
   const diff = (new Date(dateStr) - Date.now()) / 1000
   const abs  = Math.abs(diff)
-  if (abs < 60)   return rtf.format(Math.round(diff), 'second')
-  if (abs < 3600) return rtf.format(Math.round(diff / 60), 'minute')
-  if (abs < 86400) return rtf.format(Math.round(diff / 3600), 'hour')
+  if (abs < 60)      return rtf.format(Math.round(diff), 'second')
+  if (abs < 3600)    return rtf.format(Math.round(diff / 60), 'minute')
+  if (abs < 86400)   return rtf.format(Math.round(diff / 3600), 'hour')
   if (abs < 2592000) return rtf.format(Math.round(diff / 86400), 'day')
   return rtf.format(Math.round(diff / 2592000), 'month')
 }
@@ -113,6 +125,10 @@ function timeAgo(dateStr) {
 .notif-item__icon--reply {
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
+}
+.notif-item__icon--follower {
+  background: rgba(139, 92, 246, 0.12);
+  color: #8b5cf6;
 }
 
 .notif-item__body {

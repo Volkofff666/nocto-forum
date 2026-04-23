@@ -8,6 +8,29 @@
 
         <div style="padding:24px;">
           <form @submit.prevent="submit">
+            <!-- Page background preview -->
+            <div style="margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
+              <div class="settings-bg-preview" :style="form.bg_url ? `background-image:url('${form.bg_url}')` : ''">
+                <div class="settings-cover-preview__empty" v-if="!form.bg_url || bgError">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Фон страницы</span>
+                </div>
+              </div>
+              <div class="form-group" style="margin-top:12px;margin-bottom:0;">
+                <label class="form-label">Фон страницы</label>
+                <input
+                  v-model="form.bg_url"
+                  type="url"
+                  class="form-input"
+                  :class="{ 'form-input--error': errors.bg_url }"
+                  placeholder="https://example.com/wallpaper.jpg"
+                  @input="bgError = false"
+                />
+                <div v-if="errors.bg_url" class="form-error">{{ errors.bg_url }}</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Вставьте URL картинки — она будет фоном всего сайта (тема не влияет)</div>
+              </div>
+            </div>
+
             <!-- Cover preview -->
             <div style="margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border);">
               <div class="settings-cover-preview" :style="form.cover_url ? `background-image:url('${form.cover_url}')` : ''">
@@ -117,16 +140,18 @@ const props = defineProps({
 })
 
 const form = ref({
-  name:              props.user.name,
-  username:          props.user.username,
-  bio:               props.user.bio || '',
+  name:       props.user.name,
+  username:   props.user.username,
+  bio:        props.user.bio        || '',
   avatar_url: props.user.avatar_url || '',
   cover_url:  props.user.cover_url  || '',
+  bg_url:     props.user.bg_url     || '',
 })
 
 const saving     = ref(false)
 const imgError   = ref(false)
 const coverError = ref(false)
+const bgError    = ref(false)
 
 const initials = computed(() => {
   const words = (form.value.name || '').trim().split(' ')
@@ -142,6 +167,20 @@ function submit() {
 </script>
 
 <style scoped>
+.settings-bg-preview {
+  width: 100%;
+  height: 100px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background-color: #1a1a2e;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 .settings-cover-preview {
   width: 100%;
   height: 140px;

@@ -19,21 +19,26 @@ class ArticleController extends Controller
         $sort     = $request->input('sort', 'latest');
         $tag      = $request->input('tag');
 
-        $cacheKey = 'articles.' . md5(json_encode([
-            'category' => $category, 'sort' => $sort,
-            'tag' => $tag, 'page' => $request->input('page', 1),
-        ]));
+        // Лента подписок — per-user, не кэшируется глобально
+        if ($sort === 'following') {
+            $articles = $this->followingFeed($request);
+        } else {
+            $cacheKey = 'articles.' . md5(json_encode([
+                'category' => $category, 'sort' => $sort,
+                'tag' => $tag, 'page' => $request->input('page', 1),
+            ]));
 
-        $articles = Cache::tags(['articles'])->remember($cacheKey, 60, function () use ($category, $sort, $tag) {
-            $query = Article::published()
-                ->with('user')
-                ->withCount('comments');
+            $articles = Cache::tags(['articles'])->remember($cacheKey, 60, function () use ($category, $sort, $tag) {
+                $query = Article::published()
+                    ->with('user')
+                    ->withCount('comments');
 
-            if ($category) $query->byCategory($category);
-            if ($tag)      $query->whereJsonContains('tags', $tag);
+                if ($category) $query->byCategory($category);
+                if ($tag)      $query->whereJsonContains('tags', $tag);
 
-            return $query->ordered($sort)->paginate(10)->withQueryString();
-        });
+                return $query->ordered($sort)->paginate(10)->withQueryString();
+            });
+        }
 
         $categoryCounts = Cache::tags(['articles'])->remember('category_counts', 60, function () {
             return Article::published()
@@ -55,6 +60,23 @@ class ArticleController extends Controller
             'bookmarkedIds'  => $bookmarkedIds,
             'tgSubscribers'  => $tgSubscribers,
         ]);
+    }
+
+    private function followingFeed(Request $request)
+    {
+        if (! auth()->check()) {
+            return Article::published()->whereRaw('1=0')->paginate(10)->withQueryString();
+        }
+
+        $followingIds = auth()->user()->following()->pluck('users.id');
+
+        return Article::published()
+            ->whereIn('user_id', $followingIds)
+            ->with('user')
+            ->withCount('comments')
+            ->orderByDesc('created_at')
+            ->paginate(10)
+            ->withQueryString();
     }
 
     public function create(): Response

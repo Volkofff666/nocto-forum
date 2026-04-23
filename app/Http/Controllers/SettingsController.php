@@ -25,6 +25,7 @@ class SettingsController extends Controller
             'bio'        => 'nullable|string|max:500',
             'avatar_url' => 'nullable|url|max:500',
             'cover_url'  => 'nullable|url|max:500',
+            'bg_url'     => 'nullable|url|max:500',
         ]);
 
         $user->update($validated);

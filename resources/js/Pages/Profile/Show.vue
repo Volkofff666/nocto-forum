@@ -21,9 +21,16 @@
             <template v-else>{{ profileUser.avatar }}</template>
           </div>
         </div>
-        <div v-if="isOwnProfile" class="profile-header__actions">
-          <Link href="/articles/create" class="btn btn-primary btn-sm">Написать статью</Link>
-          <Link href="/settings" class="btn btn-edit btn-sm">Редактировать профиль</Link>
+        <div class="profile-header__actions">
+          <template v-if="isOwnProfile">
+            <Link href="/articles/create" class="btn btn-primary btn-sm">Написать статью</Link>
+            <Link href="/settings" class="btn btn-edit btn-sm">Редактировать профиль</Link>
+          </template>
+          <FollowButton
+            v-else-if="currentUser"
+            :userId="profileUser.id"
+            :isFollowing="isFollowing"
+          />
         </div>
       </div>
 
@@ -58,6 +65,14 @@
           <span class="profile-stat">
             <strong>{{ totalComments }}</strong> комментариев
           </span>
+          <span class="profile-stat__dot">·</span>
+          <Link :href="`/profile/${profileUser.username}/followers`" class="profile-stat profile-stat--link">
+            <strong>{{ followersCount }}</strong> подписчиков
+          </Link>
+          <span class="profile-stat__dot">·</span>
+          <Link :href="`/profile/${profileUser.username}/following`" class="profile-stat profile-stat--link">
+            <strong>{{ followingCount }}</strong> подписок
+          </Link>
         </div>
       </div>
 
@@ -94,20 +109,25 @@ import { computed } from 'vue'
 import { router, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import ArticleCard from '@/Components/ArticleCard.vue'
+import FollowButton from '@/Components/FollowButton.vue'
 import Pagination from '@/Components/Pagination.vue'
 
 const props = defineProps({
-  profileUser:   Object,
-  articles:      Object,
-  totalVotes:    Number,
-  totalViews:    Number,
-  totalComments: Number,
+  profileUser:    Object,
+  articles:       Object,
+  totalVotes:     Number,
+  totalViews:     Number,
+  totalComments:  Number,
+  followersCount: Number,
+  followingCount: Number,
+  isFollowing:    Boolean,
 })
 
-const page = usePage()
+const page        = usePage()
+const currentUser = computed(() => page.props.auth?.user)
 
 const isOwnProfile = computed(() =>
-  page.props.auth?.user?.id === props.profileUser.id
+  currentUser.value?.id === props.profileUser.id
 )
 
 const joinDate = computed(() =>
@@ -158,7 +178,7 @@ function formatViews(n) {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  min-height: 40px; /* кнопки выравниваются по нижнему краю аватара */
+  min-height: 40px;
   margin-bottom: 12px;
 }
 
@@ -224,11 +244,22 @@ function formatViews(n) {
 .profile-stat {
   font-size: 13px;
   color: var(--text-muted);
+  text-decoration: none;
 }
 
 .profile-stat strong {
   color: var(--text);
   font-weight: 700;
+}
+
+.profile-stat--link {
+  transition: color 0.15s;
+}
+.profile-stat--link:hover {
+  color: var(--accent);
+}
+.profile-stat--link:hover strong {
+  color: var(--accent);
 }
 
 .profile-stat__dot {

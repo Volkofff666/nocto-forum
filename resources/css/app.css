@@ -2218,3 +2218,15 @@ mark {
   .article-card__cover { max-height: 280px; }
   .feed-col { gap: 0; }
 }
+
+/* ── Follow button ────────────────────────────── */
+.btn-following {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+}
+.btn-following:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.3);
+}

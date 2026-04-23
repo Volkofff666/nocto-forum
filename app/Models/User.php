@@ -18,6 +18,7 @@ class User extends Authenticatable
         'bio',
         'avatar_url',
         'cover_url',
+        'bg_url',
         'telegram_id',
         'role',
         'banned_at',
@@ -86,5 +87,17 @@ class User extends Authenticatable
     public function bookmarks()
     {
         return $this->hasMany(Bookmark::class);
+    }
+
+    // Users who follow THIS user
+    public function followers()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'following_id', 'follower_id');
+    }
+
+    // Users THIS user follows
+    public function following()
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'following_id');
     }
 }

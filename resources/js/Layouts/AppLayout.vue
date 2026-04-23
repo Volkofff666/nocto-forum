@@ -155,12 +155,28 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watchEffect, nextTick } from 'vue'
 import { Link, router, usePage } from '@inertiajs/vue3'
 import Toast from '@/Components/Toast.vue'
 
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
+
+// Apply user's custom page background (independent of theme)
+watchEffect(() => {
+  const bgUrl = user.value?.bg_url
+  if (bgUrl) {
+    document.body.style.backgroundImage = `url('${bgUrl}')`
+    document.body.style.backgroundSize = 'cover'
+    document.body.style.backgroundAttachment = 'fixed'
+    document.body.style.backgroundPosition = 'center'
+  } else {
+    document.body.style.backgroundImage = ''
+    document.body.style.backgroundSize = ''
+    document.body.style.backgroundAttachment = ''
+    document.body.style.backgroundPosition = ''
+  }
+})
 const unreadCount = computed(() => page.props.unreadNotificationsCount ?? 0)
 
 const menuOpen   = ref(false)
