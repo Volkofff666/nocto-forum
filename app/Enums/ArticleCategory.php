@@ -4,19 +4,19 @@ namespace App\Enums;
 
 enum ArticleCategory: string
 {
-    case Tech     = 'tech';
+    case Proxy    = 'proxy';
+    case Vpn      = 'vpn';
     case Security = 'security';
-    case Guides   = 'guides';
-    case News     = 'news';
+    case Tools    = 'tools';
     case Other    = 'other';
 
     public function label(): string
     {
         return match($this) {
-            self::Tech     => 'Технологии',
+            self::Proxy    => 'Прокси',
+            self::Vpn      => 'VPN',
             self::Security => 'Безопасность',
-            self::Guides   => 'Гайды',
-            self::News     => 'Новости',
+            self::Tools    => 'Инструменты',
             self::Other    => 'Другое',
         };
     }

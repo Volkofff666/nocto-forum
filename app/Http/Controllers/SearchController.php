@@ -14,7 +14,7 @@ class SearchController extends Controller
     {
         $q = trim($request->input('q', ''));
 
-        if (strlen($q) < 2) {
+        if (strlen($q) < 2 || strlen($q) > 100) {
             return Inertia::render('Search', [
                 'q'        => $q,
                 'articles' => [],

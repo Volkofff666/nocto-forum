@@ -535,14 +535,8 @@ textarea, input, select { font-family: inherit; }
 .badge-startup  { background: rgba(16,185,129,0.10); color: var(--cat-startup); }
 .badge-career   { background: rgba(99,102,241,0.10); color: var(--cat-career); }
 
-/* Legacy badge variants for admin/status pills */
-.badge-tech   { background: rgba(29,78,216,0.10); color: #1d4ed8; }
-.badge-guides { background: rgba(6,95,70,0.12);   color: #065f46; }
-.badge-news   { background: rgba(133,77,14,0.10); color: #854d0e; }
-
-[data-theme="dark"] .badge-tech   { background: rgba(29,78,216,0.20);  color: #93c5fd; }
-[data-theme="dark"] .badge-guides { background: rgba(6,95,70,0.22);    color: #6ee7b7; }
-[data-theme="dark"] .badge-news   { background: rgba(133,77,14,0.20);  color: #fcd34d; }
+[data-theme="dark"] .badge-proxy    { background: rgba(16,185,129,0.20);  color: #6ee7b7; }
+[data-theme="dark"] .badge-vpn      { background: rgba(59,130,246,0.20);  color: #93c5fd; }
 [data-theme="dark"] .badge-security { background: rgba(139,92,246,0.20); color: #c4b5fd; }
 [data-theme="dark"] .badge-tools    { background: rgba(133,100,4,0.20);  color: #fde68a; }
 [data-theme="dark"] .badge-other    { background: rgba(255,255,255,0.06); color: var(--text-muted); }

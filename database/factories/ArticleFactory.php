@@ -24,7 +24,7 @@ class ArticleFactory extends Factory
             'slug'        => Str::slug($title) . '-' . fake()->unique()->numberBetween(1000, 9999),
             'excerpt'     => fake()->paragraph(2),
             'body'        => implode("\n\n", fake()->paragraphs(4)),
-            'category'    => fake()->randomElement(['tech', 'security', 'guides', 'news', 'other']),
+            'category'    => fake()->randomElement(['proxy', 'vpn', 'security', 'tools', 'other']),
             'status'      => 'published',
             'votes_count' => 0,
             'views_count' => 0,
