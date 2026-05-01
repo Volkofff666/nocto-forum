@@ -257,9 +257,9 @@ const vClickOutside = {
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--text-muted);
-  transition: background 0.15s, color 0.15s;
+  transition: background var(--transition-base), color var(--transition-base);
   text-decoration: none;
 }
 .notif-bell:hover {

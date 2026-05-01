@@ -21,3 +21,4 @@ Dockerfile
 supervisord.conf
 /.claude
 CLAUDE.md
+/Forum

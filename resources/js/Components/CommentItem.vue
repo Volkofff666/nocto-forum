@@ -1,27 +1,31 @@
 <template>
   <div class="comment-item">
-    <div class="avatar avatar--32" style="margin-top:1px;">
+    <!-- Avatar 28px — ITHub comment size -->
+    <div class="avatar avatar--28" :style="avatarStyle(comment.user)" style="margin-top:2px;flex-shrink:0">
       <img v-if="comment.user.avatar_url" :src="comment.user.avatar_url" :alt="comment.user.name" />
       <template v-else>{{ comment.user.avatar }}</template>
     </div>
 
     <div class="comment-item__body">
+      <!-- Header: author + time -->
       <div class="comment-item__header">
         <Link :href="`/profile/${comment.user.username}`" class="comment-item__author">{{ comment.user.name }}</Link>
         <span class="comment-item__time">{{ timeAgo(comment.created_at) }}</span>
       </div>
 
+      <!-- Body text -->
       <div class="comment-item__text">{{ comment.body }}</div>
 
+      <!-- Action row -->
       <div class="comment-item__actions">
-        <button v-if="canComment" class="btn btn-ghost btn-xs" @click="toggleReply">
+        <button v-if="canComment" class="comment-action-btn" @click="toggleReply">
           {{ showReply ? 'Отмена' : 'Ответить' }}
         </button>
-        <button v-if="canComment && !canDelete" class="btn btn-ghost btn-xs" @click="toggleReport">
+        <button v-if="canComment && !canDelete" class="comment-action-btn" @click="toggleReport">
           Пожаловаться
         </button>
         <form v-if="canDelete" @submit.prevent="del">
-          <button type="submit" class="btn btn-danger-ghost btn-xs">Удалить</button>
+          <button type="submit" class="comment-action-btn comment-action-btn--danger">Удалить</button>
         </form>
       </div>
 
@@ -55,13 +59,12 @@
         </div>
       </div>
 
-      <!-- FIXED: display error if reply deletion fails -->
-      <p v-if="replyError" class="text-red-500 text-sm mt-1">{{ replyError }}</p>
+      <p v-if="replyError" style="color:var(--color-red-500);font-size:13px;margin-top:4px;">{{ replyError }}</p>
 
-      <!-- Replies -->
+      <!-- Replies (ITHub nested indent) -->
       <div v-if="comment.replies?.length" class="comment-replies">
         <div v-for="reply in comment.replies" :key="reply.id" class="comment-item" style="padding:10px 0;">
-          <div class="avatar avatar--24" style="margin-top:1px;">
+          <div class="avatar avatar--28" :style="avatarStyle(reply.user)" style="margin-top:2px;flex-shrink:0">
             <img v-if="reply.user.avatar_url" :src="reply.user.avatar_url" :alt="reply.user.name" />
             <template v-else>{{ reply.user.avatar }}</template>
           </div>
@@ -73,7 +76,7 @@
             <div class="comment-item__text">{{ reply.body }}</div>
             <div class="comment-item__actions">
               <form v-if="canDeleteComment(reply)" @submit.prevent="delReply(reply.id)">
-                <button type="submit" class="btn btn-danger-ghost btn-xs">Удалить</button>
+                <button type="submit" class="comment-action-btn comment-action-btn--danger">Удалить</button>
               </form>
             </div>
           </div>
@@ -110,6 +113,14 @@ const canDelete = computed(() => {
 function canDeleteComment(c) {
   const u = page.props.auth?.user
   return u && (u.id === c.user_id || ['moderator','admin'].includes(u.role))
+}
+
+// Avatar background palette (matches ITHub avatar color system)
+const AVATAR_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
+function avatarStyle(user) {
+  if (user.avatar_url) return {}
+  const idx = (user.id ?? 0) % AVATAR_COLORS.length
+  return { background: AVATAR_COLORS[idx] }
 }
 
 function toggleReport() {
@@ -149,7 +160,6 @@ function del() {
   }
 }
 
-// FIXED: added try/catch to handle deleting already-deleted or non-existent replies
 async function delReply(id) {
   if (!confirm('Удалить комментарий?')) return
   replyError.value = null
@@ -157,15 +167,11 @@ async function delReply(id) {
     await router.delete(`/comments/${id}`, {
       preserveScroll: true,
       onError: (errors) => {
-        // Server returned validation/auth error
         replyError.value = 'Не удалось удалить комментарий. Попробуйте обновить страницу.'
-        console.error('Delete reply error:', errors)
       },
     })
   } catch (e) {
-    // Network error or unexpected response (e.g., 404 — reply already deleted)
     replyError.value = 'Комментарий уже был удалён или недоступен.'
-    console.error('Delete reply exception:', e)
   }
 }
 
@@ -178,3 +184,24 @@ function timeAgo(d) {
   return `${Math.floor(s/2592000)} мес. назад`
 }
 </script>
+
+<style scoped>
+/* Comment action buttons — ghost style, no border, compact */
+.comment-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  padding: 0;
+  transition: color var(--transition-base);
+}
+.comment-action-btn:hover { color: var(--text); }
+.comment-action-btn--danger { color: var(--color-red-500); }
+.comment-action-btn--danger:hover { color: #dc2626; }
+</style>

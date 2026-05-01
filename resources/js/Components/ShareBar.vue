@@ -94,18 +94,19 @@ async function copy() {
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  border-radius: var(--radius);
-  font-size: 13px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   font-weight: 500;
   border: 1px solid var(--border-strong);
-  background: var(--bg);
+  background: var(--bg-card);
   color: var(--text);
   cursor: pointer;
-  transition: all 0.12s;
+  transition: all var(--transition-base);
   text-decoration: none;
+  font-family: var(--font-ui);
 }
 .share-btn:hover { border-color: var(--accent); color: var(--accent); }
 .share-btn--tg { border-color: #229ED9; color: #229ED9; }
 .share-btn--tg:hover { background: rgba(34,158,217,0.08); }
-.share-btn--copied { border-color: #28a745; color: #28a745; }
+.share-btn--copied { border-color: var(--color-green-500); color: var(--color-green-500); }
 </style>

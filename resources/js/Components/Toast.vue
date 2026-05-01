@@ -37,16 +37,17 @@ watch(() => props.message, (msg) => {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
   font-weight: 500;
   cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: var(--z-toast);
+  box-shadow: var(--elevation-3);
   white-space: nowrap;
+  font-family: var(--font-ui);
 }
-.toast--success { background: #1a1a1a; color: #fff; }
-.toast--error   { background: #dc3545; color: #fff; }
+.toast--success { background: var(--color-gray-900); color: #fff; }
+.toast--error   { background: var(--color-red-500); color: #fff; }
 
 .toast-enter-active { transition: all 0.2s ease; }
 .toast-leave-active { transition: all 0.25s ease; }
