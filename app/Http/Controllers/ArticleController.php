@@ -69,7 +69,7 @@ class ArticleController extends Controller
             'excerpt'   => 'required|string|max:500',
             'body'      => 'required|string|max:200000',
             'category'  => 'required|in:' . implode(',', ArticleCategory::values()),
-            'cover_url' => 'nullable|url|max:500',
+            'cover_url' => 'nullable|url|max:1000',
             'tags'      => 'nullable|array|max:7',
             'tags.*'    => 'string|max:40',
             'publish'   => 'sometimes|boolean',
@@ -158,7 +158,7 @@ class ArticleController extends Controller
             'excerpt'   => 'required|string|max:500',
             'body'      => 'required|string|max:200000',
             'category'  => 'required|in:' . implode(',', ArticleCategory::values()),
-            'cover_url' => 'nullable|url|max:500',
+            'cover_url' => 'nullable|url|max:1000',
             'tags'      => 'nullable|array|max:7',
             'tags.*'    => 'string|max:40',
         ]);
